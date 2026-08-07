@@ -94,8 +94,12 @@ export function OnboardingTour({ theme = "light" }: { theme?: "light" | "dark" }
             onClick={() => scrollTo(index)}
             className={`h-1.5 rounded-full transition-all ${
               index === selectedIndex
-                ? "w-5 bg-white"
-                : "w-1.5 bg-white/40"
+                ? isDark
+                  ? "w-5 bg-white"
+                  : "w-5 bg-primary"
+                : isDark
+                  ? "w-1.5 bg-white/40"
+                  : "w-1.5 bg-muted-foreground/30"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
