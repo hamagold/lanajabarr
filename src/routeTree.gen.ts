@@ -15,6 +15,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as BookingsIdRouteImport } from './routes/bookings/$id'
 import { Route as BookingsNewRouteImport } from './routes/bookings/new'
+import { Route as LocationsIndexRouteImport } from './routes/locations/index'
+import { Route as LocationsIdRouteImport } from './routes/locations/$id'
+import { Route as LocationsNewRouteImport } from './routes/locations/new'
+import { Route as LocationsShareRouteImport } from './routes/locations/share'
+import { Route as ShareShareIdRouteImport } from './routes/share/$shareId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +51,31 @@ const BookingsNewRoute = BookingsNewRouteImport.update({
   path: '/bookings/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocationsIndexRoute = LocationsIndexRouteImport.update({
+  id: '/locations/',
+  path: '/locations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocationsIdRoute = LocationsIdRouteImport.update({
+  id: '/locations/$id',
+  path: '/locations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocationsNewRoute = LocationsNewRouteImport.update({
+  id: '/locations/new',
+  path: '/locations/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocationsShareRoute = LocationsShareRouteImport.update({
+  id: '/locations/share',
+  path: '/locations/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareShareIdRoute = ShareShareIdRouteImport.update({
+  id: '/share/$shareId',
+  path: '/share/$shareId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +84,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/$id': typeof LocationsIdRoute
+  '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
+  '/share/$shareId': typeof ShareShareIdRoute
+  '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +97,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/$id': typeof LocationsIdRoute
+  '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
+  '/share/$shareId': typeof ShareShareIdRoute
+  '/locations': typeof LocationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +111,11 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/$id': typeof LocationsIdRoute
+  '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
+  '/share/$shareId': typeof ShareShareIdRoute
+  '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +126,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/$id'
+    | '/locations/new'
+    | '/locations/share'
+    | '/share/$shareId'
+    | '/locations/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +139,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/$id'
+    | '/locations/new'
+    | '/locations/share'
+    | '/share/$shareId'
+    | '/locations'
   id:
     | '__root__'
     | '/'
@@ -97,6 +152,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/$id'
+    | '/locations/new'
+    | '/locations/share'
+    | '/share/$shareId'
+    | '/locations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +166,11 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   BookingsIdRoute: typeof BookingsIdRoute
   BookingsNewRoute: typeof BookingsNewRoute
+  LocationsIdRoute: typeof LocationsIdRoute
+  LocationsNewRoute: typeof LocationsNewRoute
+  LocationsShareRoute: typeof LocationsShareRoute
+  ShareShareIdRoute: typeof ShareShareIdRoute
+  LocationsIndexRoute: typeof LocationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +217,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/locations/': {
+      id: '/locations/'
+      path: '/locations'
+      fullPath: '/locations/'
+      preLoaderRoute: typeof LocationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locations/$id': {
+      id: '/locations/$id'
+      path: '/locations/$id'
+      fullPath: '/locations/$id'
+      preLoaderRoute: typeof LocationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locations/new': {
+      id: '/locations/new'
+      path: '/locations/new'
+      fullPath: '/locations/new'
+      preLoaderRoute: typeof LocationsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locations/share': {
+      id: '/locations/share'
+      path: '/locations/share'
+      fullPath: '/locations/share'
+      preLoaderRoute: typeof LocationsShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/$shareId': {
+      id: '/share/$shareId'
+      path: '/share/$shareId'
+      fullPath: '/share/$shareId'
+      preLoaderRoute: typeof ShareShareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,17 +262,12 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   BookingsIdRoute: BookingsIdRoute,
   BookingsNewRoute: BookingsNewRoute,
+  LocationsIdRoute: LocationsIdRoute,
+  LocationsNewRoute: LocationsNewRoute,
+  LocationsShareRoute: LocationsShareRoute,
+  ShareShareIdRoute: ShareShareIdRoute,
+  LocationsIndexRoute: LocationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Home, Settings, type LucideIcon } from "lucide-react";
+import { CalendarDays, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 const TABS: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/dashboard", label: "Home", icon: Home },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/locations", label: "Locations", icon: MapPin },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
