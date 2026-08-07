@@ -191,6 +191,8 @@ function BookingDetails() {
           placeholder="Anything important about the client or the session…"
         />
       </section>
+
+      <BookingGallery booking={booking} updateBooking={updateBooking} />
     </div>
   );
 }
