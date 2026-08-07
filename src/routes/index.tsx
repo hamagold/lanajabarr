@@ -2,7 +2,6 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import lightLogo from "../../public/shootflow-logo-light.png";
 import welcomeBg from "../../public/shootflow-welcome-bg.jpg";
-import { OnboardingTour } from "../components/onboarding-tour";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,10 +50,6 @@ function Welcome() {
         <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-white/90">
           Plan. Shoot. Deliver.
         </p>
-      </div>
-
-      <div className="w-full flex-1 py-8">
-        <OnboardingTour theme="dark" />
       </div>
 
       <div className="w-full space-y-3">
