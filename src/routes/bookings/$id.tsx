@@ -3,6 +3,7 @@ import { ChevronLeft, Mail, Phone, Trash2, X } from "lucide-react";
 import { useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { MapBox } from "@/components/map-box";
 import { useBookings } from "@/lib/booking-store";
 import {
   PAYMENT_STATUSES,
