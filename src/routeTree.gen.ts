@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as BookingsIdRouteImport } from './routes/bookings/$id'
 import { Route as BookingsNewRouteImport } from './routes/bookings/new'
 import { Route as LocationsIndexRouteImport } from './routes/locations/index'
+import { Route as LocationsNewRouteImport } from './routes/locations/new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const LocationsIndexRoute = LocationsIndexRouteImport.update({
   path: '/locations/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocationsNewRoute = LocationsNewRouteImport.update({
+  id: '/locations/new',
+  path: '/locations/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/new': typeof LocationsNewRoute
   '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/new': typeof LocationsNewRoute
   '/locations': typeof LocationsIndexRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/bookings/$id': typeof BookingsIdRoute
   '/bookings/new': typeof BookingsNewRoute
+  '/locations/new': typeof LocationsNewRoute
   '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/new'
     | '/locations/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/new'
     | '/locations'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/bookings/$id'
     | '/bookings/new'
+    | '/locations/new'
     | '/locations/'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   BookingsIdRoute: typeof BookingsIdRoute
   BookingsNewRoute: typeof BookingsNewRoute
+  LocationsNewRoute: typeof LocationsNewRoute
   LocationsIndexRoute: typeof LocationsIndexRoute
 }
 
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/locations/new': {
+      id: '/locations/new'
+      path: '/locations/new'
+      fullPath: '/locations/new'
+      preLoaderRoute: typeof LocationsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   BookingsIdRoute: BookingsIdRoute,
   BookingsNewRoute: BookingsNewRoute,
+  LocationsNewRoute: LocationsNewRoute,
   LocationsIndexRoute: LocationsIndexRoute,
 }
 export const routeTree = rootRouteImport
