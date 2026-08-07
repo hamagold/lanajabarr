@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, ImageIcon } from "lucide-react";
 import { formatDate, formatMoney, STAGE_LABELS, type Booking } from "@/lib/bookings";
 
 export function StagePill({ stage }: { stage: Booking["stage"] }) {
@@ -38,6 +38,22 @@ export function BookingCard({ booking }: { booking: Booking }) {
           </span>
         ) : null}
       </div>
+      {booking.images.length > 0 ? (
+        <div className="mt-3 flex items-center gap-2">
+          <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+            <img
+              src={booking.images[0]}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.6} />
+            {booking.images.length} photo{booking.images.length > 1 ? "s" : ""}
+          </span>
+        </div>
+      ) : null}
     </Link>
   );
 }
