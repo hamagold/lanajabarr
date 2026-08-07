@@ -164,3 +164,12 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
 }
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+@utility drop-shadow-soft {
+  --tw-drop-shadow: drop-shadow(0 8px 16px oklch(0.4 0.03 60 / 0.08));
+  filter: var(--tw-drop-shadow);
+}
