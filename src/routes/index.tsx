@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Aperture } from "lucide-react";
+
+import logo from "../../public/shootflow-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,24 +23,35 @@ export const Route = createFileRoute("/")({
 
 function Welcome() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-between px-8 py-16">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between px-8 py-16">
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <Aperture className="h-12 w-12 text-primary" strokeWidth={1} />
-        <h1 className="mt-6 text-[42px] leading-none tracking-tight">Shootflow</h1>
-        <p className="mt-3 text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
+        <div className="relative">
+          <img
+            src={logo}
+            alt="Shootflow"
+            width={120}
+            height={120}
+            className="h-32 w-32 drop-shadow-soft"
+          />
+        </div>
+        <h1 className="mt-8 text-[46px] leading-none tracking-tight">Shootflow</h1>
+        <p className="mt-3 text-[11px] uppercase tracking-[0.4em] text-muted-foreground">
           Plan. Shoot. Deliver.
         </p>
-        <p className="mt-8 max-w-xs text-[15px] leading-relaxed text-muted-foreground">
-          The all-in-one app for photographers to plan sessions, organize clients and grow
-          their business.
+        <p className="mt-10 max-w-xs text-[15px] leading-relaxed text-muted-foreground">
+          The calm, all-in-one workflow for photographers to manage bookings, clients, edits, and
+          deliveries.
         </p>
       </div>
-      <Link
-        to="/dashboard"
-        className="block rounded-full bg-primary px-6 py-4 text-center text-[15px] font-medium text-primary-foreground transition-transform active:scale-[0.98]"
-      >
-        Get started
-      </Link>
+      <div className="w-full space-y-3">
+        <Link
+          to="/dashboard"
+          className="block w-full rounded-full bg-primary px-6 py-4 text-center text-[15px] font-medium text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
+        >
+          Get started
+        </Link>
+        <p className="text-center text-[11px] text-muted-foreground">Simple. Mobile. Made for photographers.</p>
+      </div>
     </div>
   );
 }
