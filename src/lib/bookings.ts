@@ -107,6 +107,7 @@ export function seedBookings(): Booking[] {
       notes: "All together — kids, parents, grandparents. Golden hour preferred.",
       checklist: newChecklist(),
       stage: "upcoming",
+      images: [],
     },
     {
       id: "b2",
@@ -123,6 +124,7 @@ export function seedBookings(): Booking[] {
       notes: "Engagement announcement — wants 3 teasers early.",
       checklist: newChecklist(),
       stage: "editing",
+      images: [],
     },
     {
       id: "b3",
@@ -139,6 +141,7 @@ export function seedBookings(): Booking[] {
       notes: "Delivered 60 images. Invoice settled.",
       checklist: newChecklist().map((c) => ({ ...c, done: true })),
       stage: "completed",
+      images: [],
     },
   ];
 }
