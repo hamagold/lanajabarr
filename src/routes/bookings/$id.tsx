@@ -235,6 +235,7 @@ function BookingGallery({
     let loaded = 0;
 
     for (let i = 0; i < toRead; i++) {
+      const file = files[i]!;
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === "string") {
@@ -245,7 +246,7 @@ function BookingGallery({
           updateBooking(booking.id, { images: [...booking.images, ...nextImages] });
         }
       };
-      reader.readAsDataURL(files[i]);
+      reader.readAsDataURL(file);
     }
 
     e.target.value = "";
