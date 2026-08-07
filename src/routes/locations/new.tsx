@@ -1,4 +1,3 @@
-<<<<<<<
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ImagePlus, Loader2, Search, X } from "lucide-react";
 import { useState } from "react";
@@ -252,4 +251,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
->>>>>>>
