@@ -49,6 +49,7 @@ export type Booking = {
   notes: string;
   checklist: ChecklistItem[];
   stage: Stage;
+  images: string[]; // base64 data URLs
 };
 
 export const DEFAULT_CHECKLIST = [
