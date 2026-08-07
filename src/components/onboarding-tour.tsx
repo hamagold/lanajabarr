@@ -74,7 +74,11 @@ export function OnboardingTour({ theme = "light" }: { theme?: "light" | "dark" }
                 >
                   {title}
                 </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-white/80">
+                <p
+                  className={`mt-2 text-[13px] leading-relaxed ${
+                    isDark ? "text-white/80" : "text-muted-foreground"
+                  }`}
+                >
                   {description}
                 </p>
               </div>
