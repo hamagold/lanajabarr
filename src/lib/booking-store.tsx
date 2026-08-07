@@ -11,6 +11,14 @@ import { type Booking, seedBookings } from "./bookings";
 
 const KEY = "shootflow.bookings.v1";
 
+function normalize(list: Booking[]): Booking[] {
+  return (Array.isArray(list) ? list : []).map((b) => ({
+    ...b,
+    images: Array.isArray(b?.images) ? b.images : [],
+    checklist: Array.isArray(b?.checklist) ? b.checklist : [],
+  }));
+}
+
 type Ctx = {
   bookings: Booking[];
   ready: boolean;
@@ -30,9 +38,9 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(KEY);
-      setBookings(raw ? (JSON.parse(raw) as Booking[]) : seedBookings());
+      setBookings(normalize(raw ? (JSON.parse(raw) as Booking[]) : seedBookings()));
     } catch {
-      setBookings(seedBookings());
+      setBookings(normalize(seedBookings()));
     }
     setReady(true);
   }, []);
@@ -64,13 +72,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const importBookings = useCallback(
     (incoming: Booking[], mode: "merge" | "replace") => {
       if (mode === "replace") {
-        setBookings(incoming);
+        setBookings(normalize(incoming));
         return incoming.length;
       }
       let added = 0;
       setBookings((prev) => {
         const byId = new Map(prev.map((b) => [b.id, b]));
-        for (const b of incoming) {
+        for (const b of normalize(incoming)) {
           if (!byId.has(b.id)) added += 1;
           byId.set(b.id, b);
         }
