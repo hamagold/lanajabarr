@@ -17,7 +17,7 @@ export const Route = createFileRoute("/locations/share")({
       { title: "Share locations — Shootflow" },
       {
         name: "description",
-        content: "Send a client-friendly location选 page so your client can pick a spot.",
+        content: "Send a client-friendly page so your client can pick their favourite spot.",
       },
       { property: "og:title", content: "Share locations — Shootflow" },
       { property: "og:description", content: "Let your client choose their favourite spot." },

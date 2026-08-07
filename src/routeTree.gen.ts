@@ -18,6 +18,7 @@ import { Route as BookingsNewRouteImport } from './routes/bookings/new'
 import { Route as LocationsIndexRouteImport } from './routes/locations/index'
 import { Route as LocationsIdRouteImport } from './routes/locations/$id'
 import { Route as LocationsNewRouteImport } from './routes/locations/new'
+import { Route as LocationsShareRouteImport } from './routes/locations/share'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const LocationsNewRoute = LocationsNewRouteImport.update({
   path: '/locations/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocationsShareRoute = LocationsShareRouteImport.update({
+  id: '/locations/share',
+  path: '/locations/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/bookings/new': typeof BookingsNewRoute
   '/locations/$id': typeof LocationsIdRoute
   '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
   '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/bookings/new': typeof BookingsNewRoute
   '/locations/$id': typeof LocationsIdRoute
   '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
   '/locations': typeof LocationsIndexRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/bookings/new': typeof BookingsNewRoute
   '/locations/$id': typeof LocationsIdRoute
   '/locations/new': typeof LocationsNewRoute
+  '/locations/share': typeof LocationsShareRoute
   '/locations/': typeof LocationsIndexRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/bookings/new'
     | '/locations/$id'
     | '/locations/new'
+    | '/locations/share'
     | '/locations/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/bookings/new'
     | '/locations/$id'
     | '/locations/new'
+    | '/locations/share'
     | '/locations'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/bookings/new'
     | '/locations/$id'
     | '/locations/new'
+    | '/locations/share'
     | '/locations/'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   BookingsNewRoute: typeof BookingsNewRoute
   LocationsIdRoute: typeof LocationsIdRoute
   LocationsNewRoute: typeof LocationsNewRoute
+  LocationsShareRoute: typeof LocationsShareRoute
   LocationsIndexRoute: typeof LocationsIndexRoute
 }
 
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/locations/share': {
+      id: '/locations/share'
+      path: '/locations/share'
+      fullPath: '/locations/share'
+      preLoaderRoute: typeof LocationsShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingsNewRoute: BookingsNewRoute,
   LocationsIdRoute: LocationsIdRoute,
   LocationsNewRoute: LocationsNewRoute,
+  LocationsShareRoute: LocationsShareRoute,
   LocationsIndexRoute: LocationsIndexRoute,
 }
 export const routeTree = rootRouteImport
