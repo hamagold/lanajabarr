@@ -53,6 +53,7 @@ function NewBooking() {
       price: Number(form.price) || 0,
       checklist: newChecklist(),
       stage: "upcoming",
+      images: [],
     });
     navigate({ to: "/bookings/$id", params: { id } });
   }
