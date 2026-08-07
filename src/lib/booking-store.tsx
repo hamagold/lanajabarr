@@ -18,6 +18,7 @@ type Ctx = {
   addBooking: (b: Booking) => void;
   updateBooking: (id: string, patch: Partial<Booking>) => void;
   removeBooking: (id: string) => void;
+  importBookings: (incoming: Booking[], mode: "merge" | "replace") => number;
 };
 
 const BookingContext = createContext<Ctx | null>(null);
@@ -60,9 +61,37 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const importBookings = useCallback(
+    (incoming: Booking[], mode: "merge" | "replace") => {
+      if (mode === "replace") {
+        setBookings(incoming);
+        return incoming.length;
+      }
+      let added = 0;
+      setBookings((prev) => {
+        const byId = new Map(prev.map((b) => [b.id, b]));
+        for (const b of incoming) {
+          if (!byId.has(b.id)) added += 1;
+          byId.set(b.id, b);
+        }
+        return Array.from(byId.values());
+      });
+      return incoming.length;
+    },
+    [],
+  );
+
   const value = useMemo(
-    () => ({ bookings, ready, getBooking, addBooking, updateBooking, removeBooking }),
-    [bookings, ready, getBooking, addBooking, updateBooking, removeBooking],
+    () => ({
+      bookings,
+      ready,
+      getBooking,
+      addBooking,
+      updateBooking,
+      removeBooking,
+      importBookings,
+    }),
+    [bookings, ready, getBooking, addBooking, updateBooking, removeBooking, importBookings],
   );
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
