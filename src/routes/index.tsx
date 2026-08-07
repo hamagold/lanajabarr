@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import logo from "../../public/shootflow-logo.png";
+import { OnboardingTour } from "../components/onboarding-tour";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,26 +24,25 @@ export const Route = createFileRoute("/")({
 
 function Welcome() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between px-8 py-16">
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <div className="relative">
-          <img
-            src={logo}
-            alt="Shootflow"
-            width={120}
-            height={120}
-            className="h-32 w-32 drop-shadow-soft"
-          />
-        </div>
-        <h1 className="mt-8 text-[46px] leading-none tracking-tight">Shootflow</h1>
-        <p className="mt-3 text-[11px] uppercase tracking-[0.4em] text-muted-foreground">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between px-6 py-12">
+      <div className="flex flex-col items-center pt-6 text-center">
+        <img
+          src={logo}
+          alt="Shootflow"
+          width={120}
+          height={120}
+          className="h-24 w-24 drop-shadow-soft"
+        />
+        <h1 className="mt-5 text-[40px] leading-none tracking-tight">Shootflow</h1>
+        <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-muted-foreground">
           Plan. Shoot. Deliver.
         </p>
-        <p className="mt-10 max-w-xs text-[15px] leading-relaxed text-muted-foreground">
-          The calm, all-in-one workflow for photographers to manage bookings, clients, edits, and
-          deliveries.
-        </p>
       </div>
+
+      <div className="w-full flex-1 py-8">
+        <OnboardingTour />
+      </div>
+
       <div className="w-full space-y-3">
         <Link
           to="/dashboard"
@@ -50,7 +50,9 @@ function Welcome() {
         >
           Get started
         </Link>
-        <p className="text-center text-[11px] text-muted-foreground">Simple. Mobile. Made for photographers.</p>
+        <p className="text-center text-[11px] text-muted-foreground">
+          Simple. Mobile. Made for photographers.
+        </p>
       </div>
     </div>
   );
