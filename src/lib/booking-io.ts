@@ -72,6 +72,9 @@ export function parseImport(raw: string): Booking[] {
               done: c['done'] === true,
             }))
         : newChecklist();
+      const images = Array.isArray(item['images'])
+        ? (item['images'] as unknown[]).filter((img): img is string => typeof img === "string")
+        : [];
 
       return {
         id: str(item['id'], `imp${Date.now()}-${i}`),
@@ -88,6 +91,7 @@ export function parseImport(raw: string): Booking[] {
         notes: str(item['notes']),
         checklist,
         stage: STAGES.includes(stage) ? stage : "upcoming",
+        images,
       };
     });
 

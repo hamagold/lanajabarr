@@ -21,7 +21,7 @@ const SLIDES: { icon: LucideIcon; title: string; description: string }[] = [
   },
 ];
 
-export function OnboardingTour() {
+export function OnboardingTour({ theme = "light" }: { theme?: "light" | "dark" }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -45,18 +45,40 @@ export function OnboardingTour() {
     [emblaApi]
   );
 
+  const isDark = theme === "dark";
+
   return (
     <div className="w-full">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {SLIDES.map(({ icon: Icon, title, description }) => (
             <div key={title} className="flex-[0_0_80%] min-w-0 pl-3 pr-3">
-              <div className="surface flex flex-col items-center px-5 py-7 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <div
+                className={`flex flex-col items-center rounded-2xl border px-5 py-7 text-center backdrop-blur-md ${
+                  isDark
+                    ? "border-white/20 bg-white/15 text-white shadow-lg"
+                    : "surface bg-card"
+                }`}
+              >
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    isDark ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                  }`}
+                >
                   <Icon className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <h3 className="mt-4 font-sans text-lg font-medium text-foreground">{title}</h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                <h3
+                  className={`mt-4 font-sans text-lg font-medium ${
+                    isDark ? "text-white" : "text-foreground"
+                  }`}
+                >
+                  {title}
+                </h3>
+                <p
+                  className={`mt-2 text-[13px] leading-relaxed ${
+                    isDark ? "text-white/80" : "text-muted-foreground"
+                  }`}
+                >
                   {description}
                 </p>
               </div>
@@ -71,7 +93,13 @@ export function OnboardingTour() {
             key={index}
             onClick={() => scrollTo(index)}
             className={`h-1.5 rounded-full transition-all ${
-              index === selectedIndex ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/30"
+              index === selectedIndex
+                ? isDark
+                  ? "w-5 bg-white"
+                  : "w-5 bg-primary"
+                : isDark
+                  ? "w-1.5 bg-white/40"
+                  : "w-1.5 bg-muted-foreground/30"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

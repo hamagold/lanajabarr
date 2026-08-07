@@ -1,5 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Mail, Phone, Trash2 } from "lucide-react";
+import { ChevronLeft, Mail, Phone, Trash2, X } from "lucide-react";
+import { useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useBookings } from "@/lib/booking-store";
@@ -190,6 +191,8 @@ function BookingDetails() {
           placeholder="Anything important about the client or the session…"
         />
       </section>
+
+      <BookingGallery booking={booking} updateBooking={updateBooking} />
     </div>
   );
 }
@@ -200,5 +203,111 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="truncate text-sm font-medium">{value}</span>
     </div>
+  );
+}
+
+const MAX_IMAGES = 5;
+
+function BookingGallery({
+  booking,
+  updateBooking,
+}: {
+  booking: {
+    id: string;
+    images: string[];
+  };
+  updateBooking: (id: string, patch: { images: string[] }) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+
+    const remaining = MAX_IMAGES - booking.images.length;
+    const toRead = Math.min(files.length, remaining);
+    if (toRead <= 0) {
+      alert(`You can add up to ${MAX_IMAGES} images per booking.`);
+      return;
+    }
+
+    const nextImages: string[] = [];
+    let loaded = 0;
+
+    for (let i = 0; i < toRead; i++) {
+      const file = files[i]!;
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          nextImages[i] = reader.result;
+        }
+        loaded += 1;
+        if (loaded === toRead) {
+          updateBooking(booking.id, { images: [...booking.images, ...nextImages] });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    e.target.value = "";
+  }
+
+  function removeImage(index: number) {
+    updateBooking(booking.id, {
+      images: booking.images.filter((_, i) => i !== index),
+    });
+  }
+
+  return (
+    <section className="surface mt-4 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">Gallery</p>
+        <p className="text-xs text-muted-foreground">
+          {booking.images.length}/{MAX_IMAGES}
+        </p>
+      </div>
+
+      {booking.images.length > 0 ? (
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {booking.images.map((src, i) => (
+            <div key={`${src.slice(0, 24)}-${i}`} className="relative aspect-square overflow-hidden rounded-xl">
+              <img
+                src={src}
+                alt={`Gallery image ${i + 1}`}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <button
+                type="button"
+                onClick={() => removeImage(i)}
+                className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+                aria-label="Remove image"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {booking.images.length < MAX_IMAGES ? (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="mt-3 w-full rounded-full border border-dashed border-border py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary"
+        >
+          + Add photo
+        </button>
+      ) : null}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={onFileChange}
+      />
+    </section>
   );
 }

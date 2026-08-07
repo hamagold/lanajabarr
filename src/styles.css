@@ -173,3 +173,7 @@
   --tw-drop-shadow: drop-shadow(0 8px 16px oklch(0.4 0.03 60 / 0.08));
   filter: var(--tw-drop-shadow);
 }
+
+@utility text-shadow-soft {
+  text-shadow: 0 2px 8px oklch(0.3 0.03 60 / 0.25);
+}

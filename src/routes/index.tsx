@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import logo from "../../public/shootflow-logo.png";
+import lightLogo from "../../public/shootflow-logo-light.png";
+import welcomeBg from "../../public/shootflow-welcome-bg.jpg";
 import { OnboardingTour } from "../components/onboarding-tour";
 
 export const Route = createFileRoute("/")({
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Plan, shoot, deliver. A calm workflow app for working photographers.",
       },
+      { property: "og:image", content: welcomeBg },
+      { name: "twitter:image", content: welcomeBg },
     ],
   }),
   component: Welcome,
@@ -24,33 +27,44 @@ export const Route = createFileRoute("/")({
 
 function Welcome() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between px-6 py-12">
-      <div className="flex flex-col items-center pt-6 text-center">
+    <div
+      className="relative mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between overflow-hidden px-6 py-12 text-white"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, oklch(0.62 0.04 70 / 0.25), oklch(0.45 0.05 70 / 0.45)), url(${welcomeBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 -z-10 bg-black/15" />
+
+      <div className="flex flex-col items-center pt-8 text-center">
         <img
-          src={logo}
+          src={lightLogo}
           alt="Shootflow"
-          width={120}
-          height={120}
-          className="h-24 w-24 drop-shadow-soft"
+          width={80}
+          height={80}
+          className="h-20 w-20 drop-shadow-lg"
         />
-        <h1 className="mt-5 text-[40px] leading-none tracking-tight">Shootflow</h1>
-        <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-muted-foreground">
+        <h1 className="mt-5 text-[40px] leading-none tracking-tight drop-shadow-md">
+          Shootflow
+        </h1>
+        <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-white/90">
           Plan. Shoot. Deliver.
         </p>
       </div>
 
       <div className="w-full flex-1 py-8">
-        <OnboardingTour />
+        <OnboardingTour theme="dark" />
       </div>
 
       <div className="w-full space-y-3">
         <Link
           to="/dashboard"
-          className="block w-full rounded-full bg-primary px-6 py-4 text-center text-[15px] font-medium text-primary-foreground shadow-soft transition-transform active:scale-[0.98]"
+          className="block w-full rounded-full bg-white px-6 py-4 text-center text-[15px] font-medium text-[oklch(0.35_0.03_55)] shadow-soft transition-transform active:scale-[0.98]"
         >
           Get started
         </Link>
-        <p className="text-center text-[11px] text-muted-foreground">
+        <p className="text-center text-[11px] text-white/70">
           Simple. Mobile. Made for photographers.
         </p>
       </div>
