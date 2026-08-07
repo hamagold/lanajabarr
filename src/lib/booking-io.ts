@@ -61,31 +61,31 @@ export function parseImport(raw: string): Booking[] {
   const bookings = list
     .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
     .map((item, i): Booking => {
-      const stage = str(item.stage) as Stage;
-      const payment = str(item.paymentStatus) as PaymentStatus;
-      const checklist = Array.isArray(item.checklist)
-        ? (item.checklist as Record<string, unknown>[])
+      const stage = str(item['stage']) as Stage;
+      const payment = str(item['paymentStatus']) as PaymentStatus;
+      const checklist = Array.isArray(item['checklist'])
+        ? (item['checklist'] as Record<string, unknown>[])
             .filter((c) => c && typeof c === "object")
             .map((c, ci) => ({
-              id: str(c.id, `c${ci}-${Math.random().toString(36).slice(2, 7)}`),
-              label: str(c.label, "Untitled"),
-              done: c.done === true,
+              id: str(c['id'], `c${ci}-${Math.random().toString(36).slice(2, 7)}`),
+              label: str(c['label'], "Untitled"),
+              done: c['done'] === true,
             }))
         : newChecklist();
 
       return {
-        id: str(item.id, `imp${Date.now()}-${i}`),
-        clientName: str(item.clientName, "Unnamed client"),
-        phone: str(item.phone),
-        email: str(item.email),
-        shootType: str(item.shootType, "Other"),
-        date: str(item.date),
-        time: str(item.time, "10:00"),
-        location: str(item.location),
-        price: Number(item.price) || 0,
+        id: str(item['id'], `imp${Date.now()}-${i}`),
+        clientName: str(item['clientName'], "Unnamed client"),
+        phone: str(item['phone']),
+        email: str(item['email']),
+        shootType: str(item['shootType'], "Other"),
+        date: str(item['date']),
+        time: str(item['time'], "10:00"),
+        location: str(item['location']),
+        price: Number(item['price']) || 0,
         paymentStatus: PAYMENT_STATUSES.includes(payment) ? payment : "Unpaid",
-        deliveryDeadline: str(item.deliveryDeadline),
-        notes: str(item.notes),
+        deliveryDeadline: str(item['deliveryDeadline']),
+        notes: str(item['notes']),
         checklist,
         stage: STAGES.includes(stage) ? stage : "upcoming",
       };
