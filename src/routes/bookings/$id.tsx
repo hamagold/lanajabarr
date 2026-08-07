@@ -108,7 +108,6 @@ function BookingDetails() {
       <section className="surface mt-4 divide-y divide-border">
         <Row label="Photoshoot type" value={booking.shootType} />
         <Row label="Date & time" value={`${formatDate(booking.date)} · ${booking.time}`} />
-        <Row label="Location" value={booking.location || "—"} />
         <Row label="Price" value={formatMoney(booking.price)} />
         <Row label="Delivery deadline" value={formatDate(booking.deliveryDeadline)} />
         <div className="flex items-center justify-between gap-3 p-4">
@@ -128,6 +127,8 @@ function BookingDetails() {
           </select>
         </div>
       </section>
+
+      <MapBox location={booking.location} />
 
       <section className="surface mt-4 p-4">
         <p className="text-xs text-muted-foreground">Client</p>
