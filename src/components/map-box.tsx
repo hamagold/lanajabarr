@@ -6,7 +6,7 @@ export function MapBox({
   saved,
 }: {
   location: string;
-  saved?: SavedLocation;
+  saved?: SavedLocation | undefined;
 }) {
   const label = saved ? saved.name : location;
   if (!label) {

@@ -6,8 +6,8 @@ export function BookingLocationPicker({
   locationId,
   onAssign,
 }: {
-  locationId?: string;
-  onAssign: (patch: { locationId?: string; location: string }) => void;
+  locationId?: string | undefined;
+  onAssign: (patch: { locationId?: string | undefined; location: string }) => void;
 }) {
   const { locations } = useLocations();
 
