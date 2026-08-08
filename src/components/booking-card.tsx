@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ImageIcon } from "lucide-react";
 import { formatDate, formatMoney, STAGE_LABELS, type Booking } from "@/lib/bookings";
+import { useLocations } from "@/lib/location-store";
+import { mapEmbedUrl } from "@/lib/locations";
 
 export function StagePill({ stage }: { stage: Booking["stage"] }) {
   return (
@@ -12,6 +14,8 @@ export function StagePill({ stage }: { stage: Booking["stage"] }) {
 
 export function BookingCard({ booking }: { booking: Booking }) {
   const images = booking.images ?? [];
+  const { getLocation } = useLocations();
+  const saved = booking.locationId ? getLocation(booking.locationId) : undefined;
   return (
     <Link
       to="/bookings/$id"
@@ -32,13 +36,24 @@ export function BookingCard({ booking }: { booking: Booking }) {
           <Clock className="h-3.5 w-3.5" strokeWidth={1.6} />
           {formatDate(booking.date)} · {booking.time}
         </span>
-        {booking.location ? (
+        {saved || booking.location ? (
           <span className="inline-flex min-w-0 items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.6} />
-            <span className="truncate">{booking.location}</span>
+            <span className="truncate">{saved ? saved.name : booking.location}</span>
           </span>
         ) : null}
       </div>
+      {saved ? (
+        <div className="relative mt-3 h-24 w-full overflow-hidden rounded-xl bg-muted">
+          <iframe
+            src={mapEmbedUrl(saved, 13)}
+            title={`Map of ${saved.name}`}
+            className="pointer-events-none absolute inset-0 h-full w-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      ) : null}
       {images.length > 0 ? (
         <div className="mt-3 flex items-center gap-2">
           <div className="relative h-8 w-8 overflow-hidden rounded-lg">
