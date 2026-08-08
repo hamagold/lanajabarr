@@ -4,7 +4,9 @@ import { useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { MapBox } from "@/components/map-box";
+import { BookingLocationPicker } from "@/components/booking-location-picker";
 import { useBookings } from "@/lib/booking-store";
+import { useLocations } from "@/lib/location-store";
 import {
   PAYMENT_STATUSES,
   STAGES,
@@ -33,6 +35,7 @@ export const Route = createFileRoute("/bookings/$id")({
 function BookingDetails() {
   const { id } = Route.useParams();
   const { getBooking, updateBooking, removeBooking, ready } = useBookings();
+  const { getLocation } = useLocations();
   const navigate = useNavigate();
   const booking = getBooking(id);
 
@@ -128,7 +131,15 @@ function BookingDetails() {
         </div>
       </section>
 
-      <MapBox location={booking.location} />
+      <BookingLocationPicker
+        locationId={booking.locationId}
+        onAssign={(patch) => updateBooking(booking.id, patch)}
+      />
+
+      <MapBox
+        location={booking.location}
+        saved={booking.locationId ? getLocation(booking.locationId) : undefined}
+      />
 
       <section className="surface mt-4 p-4">
         <p className="text-xs text-muted-foreground">Client</p>
