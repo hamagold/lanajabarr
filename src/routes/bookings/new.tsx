@@ -15,6 +15,9 @@ import {
 } from "@/lib/bookings";
 
 export const Route = createFileRoute("/bookings/new")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    date: typeof search["date"] === "string" ? (search["date"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "New booking — Shootflow" },
@@ -30,12 +33,13 @@ function NewBooking() {
   const { addBooking } = useBookings();
   const { locations } = useLocations();
   const navigate = useNavigate();
+  const { date: presetDate } = Route.useSearch();
   const [form, setForm] = useState({
     clientName: "",
     phone: "",
     email: "",
     shootType: "Portrait",
-    date: new Date().toISOString().slice(0, 10),
+    date: presetDate ?? new Date().toISOString().slice(0, 10),
     time: "10:00",
     location: "",
     locationId: "",
