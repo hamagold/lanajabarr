@@ -1,15 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { CalendarDays, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { MonthCalendar } from "@/components/month-calendar";
 import { useBookings } from "@/lib/booking-store";
 import { useLocations } from "@/lib/location-store";
 import {
   PAYMENT_STATUSES,
   SHOOT_TYPES,
+  formatDate,
   newChecklist,
   type PaymentStatus,
 } from "@/lib/bookings";
@@ -30,10 +32,11 @@ export const Route = createFileRoute("/bookings/new")({
 });
 
 function NewBooking() {
-  const { addBooking } = useBookings();
+  const { addBooking, bookings } = useBookings();
   const { locations } = useLocations();
   const navigate = useNavigate();
   const { date: presetDate } = Route.useSearch();
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [form, setForm] = useState({
     clientName: "",
     phone: "",
@@ -107,22 +110,31 @@ function NewBooking() {
             ))}
           </select>
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Date">
-            <Input
-              type="date"
-              value={form.date}
-              onChange={(e) => set("date", e.target.value)}
-            />
-          </Field>
-          <Field label="Time">
-            <Input
-              type="time"
-              value={form.time}
-              onChange={(e) => set("time", e.target.value)}
-            />
-          </Field>
-        </div>
+        <Field label="Date">
+          <button
+            type="button"
+            onClick={() => setPickerOpen((o) => !o)}
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-card px-3 text-sm"
+          >
+            <span>{formatDate(form.date)}</span>
+            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+          </button>
+          {pickerOpen ? (
+            <div className="surface mt-2 p-4">
+              <MonthCalendar
+                value={form.date}
+                onChange={(iso) => {
+                  set("date", iso);
+                  setPickerOpen(false);
+                }}
+                bookedDates={bookings.map((b) => b.date)}
+              />
+            </div>
+          ) : null}
+        </Field>
+        <Field label="Time">
+          <Input type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
+        </Field>
         <Field label="Saved location">
           <select
             className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
