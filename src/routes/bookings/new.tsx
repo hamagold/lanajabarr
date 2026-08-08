@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useBookings } from "@/lib/booking-store";
+import { useLocations } from "@/lib/location-store";
 import {
   PAYMENT_STATUSES,
   SHOOT_TYPES,
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/bookings/new")({
 
 function NewBooking() {
   const { addBooking } = useBookings();
+  const { locations } = useLocations();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     clientName: "",
@@ -36,6 +38,7 @@ function NewBooking() {
     date: new Date().toISOString().slice(0, 10),
     time: "10:00",
     location: "",
+    locationId: "",
     price: "",
     paymentStatus: "Unpaid" as PaymentStatus,
     deliveryDeadline: "",
@@ -50,6 +53,7 @@ function NewBooking() {
     addBooking({
       ...form,
       id,
+      ...(form.locationId ? { locationId: form.locationId } : {}),
       price: Number(form.price) || 0,
       checklist: newChecklist(),
       stage: "upcoming",
@@ -115,6 +119,28 @@ function NewBooking() {
             />
           </Field>
         </div>
+        <Field label="Saved location">
+          <select
+            className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
+            value={form.locationId}
+            onChange={(e) => {
+              const id = e.target.value;
+              const loc = locations.find((l) => l.id === id);
+              setForm((f) => ({
+                ...f,
+                locationId: id,
+                location: loc ? loc.address || loc.name : f.location,
+              }));
+            }}
+          >
+            <option value="">None — type it manually</option>
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </Field>
         <Field label="Location">
           <Input
             value={form.location}

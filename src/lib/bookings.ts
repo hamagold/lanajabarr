@@ -43,6 +43,7 @@ export type Booking = {
   date: string; // yyyy-mm-dd
   time: string; // HH:mm
   location: string;
+  locationId?: string | undefined;
   price: number;
   paymentStatus: PaymentStatus;
   deliveryDeadline: string; // yyyy-mm-dd

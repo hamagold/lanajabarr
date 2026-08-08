@@ -1,10 +1,27 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, ExternalLink, ImagePlus, Share2, Trash2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ExternalLink,
+  ImagePlus,
+  Loader2,
+  Search,
+  Share2,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TagPill } from "@/components/location-card";
 import { useLocations } from "@/lib/location-store";
-import { googleMapsUrl, mapEmbedUrl } from "@/lib/locations";
+import {
+  LOCATION_TAGS,
+  googleMapsUrl,
+  mapEmbedUrl,
+  searchPlaces,
+  type GeoResult,
+} from "@/lib/locations";
 
 export const Route = createFileRoute("/locations/$id")({
   head: () => ({
@@ -36,6 +53,11 @@ function LocationDetail() {
   const navigate = useNavigate();
   const location = getLocation(id);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GeoResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   if (!ready) return null;
 
@@ -58,6 +80,20 @@ function LocationDetail() {
     const next: string[] = [];
     for (const file of Array.from(files).slice(0, 8)) next.push(await readFile(file));
     updateLocation(location.id, { images: [...images, ...next].slice(0, 20) });
+  }
+
+  async function runSearch() {
+    if (!query.trim()) return;
+    setSearching(true);
+    setSearchError("");
+    try {
+      const found = await searchPlaces(query.trim());
+      setResults(found);
+      if (found.length === 0) setSearchError("No places matched that search.");
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : "Search failed.");
+    }
+    setSearching(false);
   }
 
   return (
@@ -122,12 +158,119 @@ function LocationDetail() {
 
       <section className="surface mt-4 overflow-hidden">
         <div className="p-4">
-          <p className="text-xs text-muted-foreground">Address</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Address</p>
+            <button
+              type="button"
+              onClick={() => setEditOpen((o) => !o)}
+              className="text-xs underline underline-offset-2"
+            >
+              {editOpen ? "Done" : "Edit"}
+            </button>
+          </div>
           <p className="mt-1 text-sm font-medium">{location.address || "No address saved"}</p>
           {typeof location.lat === "number" ? (
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               {location.lat.toFixed(5)}, {location.lon?.toFixed(5)}
             </p>
+          ) : null}
+          {editOpen ? (
+            <div className="mt-4 space-y-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Name</Label>
+                <Input
+                  value={location.name}
+                  onChange={(e) => updateLocation(location.id, { name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Address / area</Label>
+                <Input
+                  value={location.address}
+                  onChange={(e) => updateLocation(location.id, { address: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Update coordinates</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void runSearch();
+                      }
+                    }}
+                    placeholder="Search a place…"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void runSearch()}
+                    aria-label="Search places"
+                    className="inline-flex h-10 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-card"
+                  >
+                    {searching ? (
+                      <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.6} />
+                    ) : (
+                      <Search className="h-4 w-4" strokeWidth={1.6} />
+                    )}
+                  </button>
+                </div>
+                {results.length > 0 ? (
+                  <ul className="divide-y divide-border rounded-md border border-border">
+                    {results.map((r) => (
+                      <li key={`${r.lat}-${r.lon}`}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateLocation(location.id, {
+                              address: r.label,
+                              lat: r.lat,
+                              lon: r.lon,
+                            });
+                            setResults([]);
+                            setQuery("");
+                          }}
+                          className="w-full p-3 text-left text-xs active:bg-secondary"
+                        >
+                          {r.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {searchError ? (
+                  <p className="text-xs text-destructive">{searchError}</p>
+                ) : null}
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Tags</Label>
+                <div className="flex flex-wrap gap-2">
+                  {LOCATION_TAGS.map((t) => {
+                    const on = tags.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() =>
+                          updateLocation(location.id, {
+                            tags: on ? tags.filter((x) => x !== t) : [...tags, t],
+                          })
+                        }
+                        className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                          on
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-muted-foreground"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           ) : null}
         </div>
         <div className="relative h-56 w-full bg-muted">
