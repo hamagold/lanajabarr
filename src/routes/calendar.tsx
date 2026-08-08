@@ -79,24 +79,43 @@ function CalendarPage() {
             const iso = toIso(year, month, day);
             const has = bookings.some((b) => b.date === iso);
             const isSelected = iso === selected;
+            const weekday = (new Date(year, month, day).getDay() + 6) % 7;
+            const isWeekend = weekday >= 5;
+            const tone = has
+              ? "bg-day-booked text-day-booked-foreground"
+              : isWeekend
+                ? "bg-day-weekend text-day-weekend-foreground"
+                : "bg-day-free text-day-free-foreground";
             return (
               <button
                 key={iso}
                 type="button"
                 onClick={() => setSelected(iso)}
-                className={`relative aspect-square rounded-full text-sm transition-colors ${
+                className={`relative aspect-square rounded-full text-sm font-medium transition-colors ${
                   isSelected
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground active:bg-secondary"
+                    ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-card"
+                    : tone
                 }`}
               >
                 {day}
                 {has && !isSelected ? (
-                  <span className="absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
+                  <span className="absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-day-booked-foreground" />
                 ) : null}
               </button>
             );
           })}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-day-booked" /> Booked
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-day-free" /> Free
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-day-weekend" /> Weekend
+          </span>
         </div>
       </div>
 
