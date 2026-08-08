@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { CalendarPlus, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { BookingCard } from "@/components/booking-card";
