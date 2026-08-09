@@ -141,26 +141,6 @@ function BookingDetails() {
         saved={booking.locationId ? getLocation(booking.locationId) : undefined}
       />
 
-      <section className="surface mt-4 p-4">
-        <p className="text-xs text-muted-foreground">Client</p>
-        <p className="mt-1 text-sm font-medium">{booking.clientName}</p>
-        <div className="mt-3 flex gap-2">
-          <a
-            href={`tel:${booking.phone}`}
-            className="flex flex-1 items-center justify-center gap-2 rounded-full border border-border py-2 text-xs"
-          >
-            <Phone className="h-3.5 w-3.5" strokeWidth={1.6} />
-            {booking.phone || "No phone"}
-          </a>
-          <a
-            href={`mailto:${booking.email}`}
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-border py-2 text-xs"
-          >
-            <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={1.6} />
-            <span className="truncate">{booking.email || "No email"}</span>
-          </a>
-        </div>
-      </section>
 
       <section className="surface mt-4 p-4">
         <div className="flex items-center justify-between">
