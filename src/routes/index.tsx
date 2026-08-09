@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useAppSettings } from "@/lib/app-settings";
 
 import lightLogo from "../../public/shootflow-logo-light.png";
 import welcomeBg from "../../public/shootflow-welcome-bg.jpg";
@@ -25,6 +26,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Welcome() {
+  const { settings } = useAppSettings();
+  const logoSrc = settings.logo || lightLogo;
+  const appName = settings.name || "Shootflow";
+
   return (
     <div
       className="relative mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-between overflow-hidden px-6 py-12 text-white"
@@ -38,15 +43,13 @@ function Welcome() {
 
       <div className="flex flex-col items-center pt-8 text-center">
         <img
-          src={lightLogo}
-          alt="Shootflow"
+          src={logoSrc}
+          alt={appName}
           width={80}
           height={80}
-          className="h-20 w-20 drop-shadow-lg"
+          className="h-20 w-20 rounded-full object-contain drop-shadow-lg"
         />
-        <h1 className="mt-5 text-[40px] leading-none tracking-tight drop-shadow-md">
-          Shootflow
-        </h1>
+        <h1 className="mt-5 text-[40px] leading-none tracking-tight drop-shadow-md">{appName}</h1>
         <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-white/90">
           Plan. Shoot. Deliver.
         </p>
