@@ -96,6 +96,7 @@ function BookingDetails() {
         </div>
       </section>
 
+      <section className="surface mt-4 p-4">
         <p className="text-xs text-muted-foreground">Workflow stage</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {STAGES.map((s, i) => (
