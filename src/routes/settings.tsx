@@ -1,8 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell, CreditCard, Download, HelpCircle, Upload, User, type LucideIcon } from "lucide-react";
+import {
+  Bell,
+  CreditCard,
+  Download,
+  HelpCircle,
+  ImageIcon,
+  RefreshCcw,
+  Upload,
+  User,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { useAppSettings } from "@/lib/app-settings";
 import { useBookings } from "@/lib/booking-store";
 import { downloadExport, parseImport } from "@/lib/booking-io";
 
