@@ -68,6 +68,7 @@ function Dashboard() {
 
       <Link
         to="/bookings/new"
+        search={{}}
         aria-label="New booking"
         className="fixed bottom-24 left-1/2 z-40 ml-[7rem] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition-transform active:scale-95"
       >
