@@ -71,9 +71,9 @@ export function newChecklist(): ChecklistItem[] {
 }
 
 export function formatMoney(value: number) {
-  return new Intl.NumberFormat("en-GB", {
+  return new Intl.NumberFormat("sv-SE", {
     style: "currency",
-    currency: "EUR",
+    currency: "SEK",
     maximumFractionDigits: 0,
   }).format(value || 0);
 }

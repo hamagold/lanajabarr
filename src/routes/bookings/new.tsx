@@ -165,7 +165,7 @@ function NewBooking() {
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Price (EUR)">
+          <Field label="Price (SEK)">
             <Input
               inputMode="numeric"
               value={form.price}
