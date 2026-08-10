@@ -6,6 +6,7 @@ import { BookingCard } from "@/components/booking-card";
 import { MonthCalendar, toIso } from "@/components/month-calendar";
 import { useBookings } from "@/lib/booking-store";
 import { formatDate } from "@/lib/bookings";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/calendar")({
 
 function CalendarPage() {
   const { bookings } = useBookings();
+  const { t, locale } = useI18n();
   const today = new Date();
   const [selected, setSelected] = useState(
     toIso(today.getFullYear(), today.getMonth(), today.getDate()),
@@ -29,7 +31,7 @@ function CalendarPage() {
   const dayBookings = bookings.filter((b) => b.date === selected);
 
   return (
-    <AppShell header={<PageHeader title="Calendar" />}>
+    <AppShell header={<PageHeader title={t("cal.title")} />}>
       <div className="surface p-4">
         <MonthCalendar
           value={selected}
@@ -41,9 +43,10 @@ function CalendarPage() {
       <div className="mt-6">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-sm font-medium">{formatDate(selected)}</p>
+            <p className="text-sm font-medium">{formatDate(selected, locale)}</p>
             <p className="text-xs text-muted-foreground">
-              {dayBookings.length} {dayBookings.length === 1 ? "booking" : "bookings"}
+              {dayBookings.length}{" "}
+              {dayBookings.length === 1 ? t("cal.booking") : t("cal.bookings")}
             </p>
           </div>
           <Link
@@ -52,7 +55,7 @@ function CalendarPage() {
             className="flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground transition-transform active:scale-[0.97]"
           >
             <Plus className="h-3.5 w-3.5" />
-            New booking
+            {t("dash.newBooking")}
           </Link>
         </div>
         <div className="mt-3 space-y-3">
@@ -63,9 +66,9 @@ function CalendarPage() {
               className="surface flex flex-col items-center gap-2 px-5 py-8 text-center"
             >
               <CalendarPlus className="h-6 w-6 text-muted-foreground" />
-              <p className="text-sm font-medium">No shoots this day</p>
+              <p className="text-sm font-medium">{t("cal.noShoots")}</p>
               <p className="text-xs text-muted-foreground">
-                Tap to book {formatDate(selected)}
+                {t("cal.tapToBook", { date: formatDate(selected, locale) })}
               </p>
             </Link>
           ) : (

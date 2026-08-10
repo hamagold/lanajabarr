@@ -1,7 +1,16 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_KEYS: TranslationKey[] = [
+  "cal.mon",
+  "cal.tue",
+  "cal.wed",
+  "cal.thu",
+  "cal.fri",
+  "cal.sat",
+  "cal.sun",
+];
 
 export function toIso(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
@@ -16,6 +25,7 @@ export function MonthCalendar({
   onChange: (iso: string) => void;
   bookedDates: string[];
 }) {
+  const { t, locale } = useI18n();
   const base = value ? new Date(`${value}T00:00:00`) : new Date();
   const start = Number.isNaN(base.getTime()) ? new Date() : base;
   const [cursor, setCursor] = useState(new Date(start.getFullYear(), start.getMonth(), 1));
@@ -35,18 +45,18 @@ export function MonthCalendar({
       <div className="flex items-center justify-between">
         <button
           type="button"
-          aria-label="Previous month"
+          aria-label={t("cal.prevMonth")}
           onClick={() => setCursor(new Date(year, month - 1, 1))}
           className="p-2 text-muted-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <p className="text-sm font-medium">
-          {cursor.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+          {cursor.toLocaleDateString(locale, { month: "long", year: "numeric" })}
         </p>
         <button
           type="button"
-          aria-label="Next month"
+          aria-label={t("cal.nextMonth")}
           onClick={() => setCursor(new Date(year, month + 1, 1))}
           className="p-2 text-muted-foreground"
         >
@@ -55,8 +65,8 @@ export function MonthCalendar({
       </div>
 
       <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px] uppercase tracking-wide text-muted-foreground">
-        {DAYS.map((d) => (
-          <span key={d}>{d}</span>
+        {DAY_KEYS.map((d) => (
+          <span key={d}>{t(d)}</span>
         ))}
       </div>
       <div className="mt-1 grid grid-cols-7 gap-1">
@@ -94,13 +104,13 @@ export function MonthCalendar({
 
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-day-booked" /> Booked
+          <span className="h-2.5 w-2.5 rounded-full bg-day-booked" /> {t("cal.legendBooked")}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-day-free" /> Free
+          <span className="h-2.5 w-2.5 rounded-full bg-day-free" /> {t("cal.legendFree")}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-day-weekend" /> Weekend
+          <span className="h-2.5 w-2.5 rounded-full bg-day-weekend" /> {t("cal.legendWeekend")}
         </span>
       </div>
     </div>

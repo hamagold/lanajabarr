@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ImageIcon, MapPin } from "lucide-react";
 import { mapEmbedUrl, type SavedLocation } from "@/lib/locations";
+import { useI18n } from "@/lib/i18n";
 
 export function LocationThumb({ location }: { location: SavedLocation }) {
   const images = location.images ?? [];
@@ -44,6 +45,7 @@ export function LocationCard({
   selected?: boolean;
   onToggle?: () => void;
 }) {
+  const { t, tx } = useI18n();
   const images = location.images ?? [];
   const tags = location.tags ?? [];
 
@@ -62,12 +64,12 @@ export function LocationCard({
         <p className="truncate text-sm font-semibold">{location.name}</p>
         <p className="mt-0.5 flex items-start gap-1 text-[11px] text-muted-foreground">
           <MapPin className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={1.6} />
-          <span className="line-clamp-2">{location.address || "No address"}</span>
+          <span className="line-clamp-2">{location.address || t("loc.noAddress")}</span>
         </p>
         {tags.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
-            {tags.slice(0, 3).map((t) => (
-              <TagPill key={t}>{t}</TagPill>
+            {tags.slice(0, 3).map((tag) => (
+              <TagPill key={tag}>{tx(`tag.${tag}`, tag)}</TagPill>
             ))}
           </div>
         ) : null}

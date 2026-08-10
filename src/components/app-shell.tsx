@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 
-const TABS: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/locations", label: "Locations", icon: MapPin },
-  { to: "/settings", label: "Settings", icon: Settings },
+const TABS: { to: string; label: TranslationKey; icon: LucideIcon }[] = [
+  { to: "/dashboard", label: "nav.home", icon: Home },
+  { to: "/calendar", label: "nav.calendar", icon: CalendarDays },
+  { to: "/locations", label: "nav.locations", icon: MapPin },
+  { to: "/settings", label: "nav.settings", icon: Settings },
 ];
 
 export function AppShell({
@@ -16,6 +17,7 @@ export function AppShell({
   children: ReactNode;
   header?: ReactNode;
 }) {
+  const { t } = useI18n();
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background">
       {header}
@@ -29,7 +31,7 @@ export function AppShell({
             activeProps={{ className: "text-primary font-medium" }}
           >
             <Icon className="h-5 w-5" strokeWidth={1.6} />
-            {label}
+            {t(label)}
           </Link>
         ))}
       </nav>

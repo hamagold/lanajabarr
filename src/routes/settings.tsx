@@ -5,6 +5,7 @@ import {
   Download,
   HelpCircle,
   ImageIcon,
+  Languages,
   RefreshCcw,
   Upload,
   User,
@@ -18,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAppSettings } from "@/lib/app-settings";
 import { useBookings } from "@/lib/booking-store";
 import { downloadExport, parseImport } from "@/lib/booking-io";
+import { LANGUAGES, useI18n, type TranslationKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -31,15 +33,16 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-const ROWS: { icon: LucideIcon; label: string; hint: string }[] = [
-  { icon: User, label: "Profile", hint: "Studio name, contact" },
-  { icon: CreditCard, label: "Payments", hint: "Currency, invoice details" },
-  { icon: HelpCircle, label: "Help & feedback", hint: "Get in touch" },
+const ROWS: { icon: LucideIcon; label: TranslationKey; hint: TranslationKey }[] = [
+  { icon: User, label: "set.profile", hint: "set.profileHint" },
+  { icon: CreditCard, label: "set.payments", hint: "set.paymentsHint" },
+  { icon: HelpCircle, label: "set.help", hint: "set.helpHint" },
 ];
 
 function SettingsPage() {
   const { bookings, importBookings } = useBookings();
   const { settings, setName, setLogo, reset } = useAppSettings();
+  const { t, lang, setLang } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
@@ -51,13 +54,13 @@ function SettingsPage() {
       const count = importBookings(parseImport(await file.text()), mode);
       setStatus({
         ok: true,
-        text:
-          mode === "replace"
-            ? `Restored ${count} bookings, replacing everything on this device.`
-            : `Imported ${count} bookings. Matching IDs were updated.`,
+        text: t(mode === "replace" ? "set.restored" : "set.imported", { count }),
       });
     } catch (err) {
-      setStatus({ ok: false, text: err instanceof Error ? err.message : "Import failed." });
+      setStatus({
+        ok: false,
+        text: err instanceof Error ? err.message : t("set.importFailed"),
+      });
     }
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -69,13 +72,20 @@ function SettingsPage() {
   }
 
   return (
-    <AppShell header={<PageHeader title="Settings" subtitle={`${settings.name} · version 1.0`} />}>
+    <AppShell
+      header={
+        <PageHeader
+          title={t("set.title")}
+          subtitle={t("set.version", { name: settings.name })}
+        />
+      }
+    >
       <div className="surface divide-y divide-border overflow-hidden">
         <div className="flex items-center gap-3 p-4">
           <Bell className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Shoot reminders</p>
-            <p className="text-xs text-muted-foreground">Notify me the day before</p>
+            <p className="text-sm font-medium">{t("set.reminders")}</p>
+            <p className="text-xs text-muted-foreground">{t("set.remindersHint")}</p>
           </div>
           <Switch defaultChecked />
         </div>
@@ -87,8 +97,8 @@ function SettingsPage() {
           >
             <Icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium">{label}</p>
-              <p className="text-xs text-muted-foreground">{hint}</p>
+              <p className="text-sm font-medium">{t(label)}</p>
+              <p className="text-xs text-muted-foreground">{t(hint)}</p>
             </div>
           </button>
         ))}
@@ -96,16 +106,44 @@ function SettingsPage() {
 
       <section className="surface mt-4 p-4">
         <div className="flex items-center gap-3">
+          <Languages className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{t("set.language")}</p>
+            <p className="text-xs text-muted-foreground">{t("set.languageHint")}</p>
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              onClick={() => setLang(l.code)}
+              aria-pressed={lang === l.code}
+              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
+                lang === l.code
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground"
+              }`}
+            >
+              <span className="block text-sm font-medium">{l.native}</span>
+              <span className="block text-[11px] opacity-75">{l.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="surface mt-4 p-4">
+        <div className="flex items-center gap-3">
           <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Branding</p>
-            <p className="text-xs text-muted-foreground">App name & logo</p>
+            <p className="text-sm font-medium">{t("set.branding")}</p>
+            <p className="text-xs text-muted-foreground">{t("set.brandingHint")}</p>
           </div>
         </div>
 
         <div className="mt-4">
           <label htmlFor="app-name" className="text-xs text-muted-foreground">
-            App name
+            {t("set.appName")}
           </label>
           <Input
             id="app-name"
@@ -117,7 +155,7 @@ function SettingsPage() {
         </div>
 
         <div className="mt-4">
-          <p className="text-xs text-muted-foreground">Logo</p>
+          <p className="text-xs text-muted-foreground">{t("set.logo")}</p>
           <div className="mt-2 flex items-center gap-3">
             {settings.logo ? (
               <div className="relative">
@@ -130,7 +168,7 @@ function SettingsPage() {
                   type="button"
                   onClick={() => setLogo(null)}
                   className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
-                  aria-label="Remove logo"
+                  aria-label={t("set.removeLogo")}
                 >
                   <X className="h-3 w-3" strokeWidth={2} />
                 </button>
@@ -146,7 +184,7 @@ function SettingsPage() {
               className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium transition-colors active:bg-secondary"
             >
               <Upload className="h-3.5 w-3.5" strokeWidth={1.6} />
-              Upload logo
+              {t("set.uploadLogo")}
             </button>
           </div>
           <input
@@ -164,15 +202,14 @@ function SettingsPage() {
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-xs font-medium text-muted-foreground transition-colors active:bg-secondary"
         >
           <RefreshCcw className="h-3.5 w-3.5" strokeWidth={1.6} />
-          Reset to default
+          {t("set.resetDefault")}
         </button>
       </section>
 
       <section className="surface mt-4 p-4">
-        <p className="text-sm font-medium">Backup & restore</p>
+        <p className="text-sm font-medium">{t("set.backup")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Export your {bookings.length} bookings as a JSON file, or restore them from a
-          previous export.
+          {t("set.backupHint", { count: bookings.length })}
         </p>
 
         <button
@@ -181,21 +218,19 @@ function SettingsPage() {
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-medium transition-transform active:scale-[0.98]"
         >
           <Download className="h-4 w-4" strokeWidth={1.6} />
-          Export bookings
+          {t("set.export")}
         </button>
 
         <div className="mt-4 flex gap-2">
           <ModeChip active={mode === "merge"} onClick={() => setMode("merge")}>
-            Merge
+            {t("set.merge")}
           </ModeChip>
           <ModeChip active={mode === "replace"} onClick={() => setMode("replace")}>
-            Replace all
+            {t("set.replace")}
           </ModeChip>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          {mode === "merge"
-            ? "Keeps existing bookings and updates ones with the same ID."
-            : "Deletes bookings on this device and restores only the file's."}
+          {mode === "merge" ? t("set.mergeHint") : t("set.replaceHint")}
         </p>
 
         <input
@@ -211,7 +246,7 @@ function SettingsPage() {
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]"
         >
           <Upload className="h-4 w-4" strokeWidth={1.6} />
-          Import from file
+          {t("set.import")}
         </button>
 
         {status ? (
@@ -224,7 +259,7 @@ function SettingsPage() {
       </section>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Bookings are stored on this device for now.
+        {t("set.storedLocally")}
       </p>
     </AppShell>
   );

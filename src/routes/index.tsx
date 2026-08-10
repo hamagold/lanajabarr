@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useAppSettings } from "@/lib/app-settings";
+import { useI18n } from "@/lib/i18n";
 
 import lightLogo from "../../public/shootflow-logo-light.png";
 import welcomeBg from "../../public/shootflow-welcome-bg.jpg";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/")({
 
 function Welcome() {
   const { settings } = useAppSettings();
+  const { t } = useI18n();
   const logoSrc = settings.logo || lightLogo;
   const appName = settings.name || "Shootflow";
 
@@ -51,7 +53,7 @@ function Welcome() {
         />
         <h1 className="mt-5 text-[40px] leading-none tracking-tight drop-shadow-md">{appName}</h1>
         <p className="mt-2 text-[11px] uppercase tracking-[0.4em] text-white/90">
-          Plan. Shoot. Deliver.
+          {t("welcome.tagline")}
         </p>
       </div>
 
@@ -60,10 +62,10 @@ function Welcome() {
           to="/dashboard"
           className="block w-full rounded-full bg-white px-6 py-4 text-center text-[15px] font-medium text-[oklch(0.35_0.03_55)] shadow-soft transition-transform active:scale-[0.98]"
         >
-          Get started
+          {t("welcome.cta")}
         </Link>
         <p className="text-center text-[11px] text-white/70">
-          Simple. Mobile. Made for photographers.
+          {t("welcome.footnote")}
         </p>
       </div>
     </div>

@@ -1,13 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ImageIcon } from "lucide-react";
-import { formatDate, formatMoney, STAGE_LABELS, type Booking } from "@/lib/bookings";
+import { formatDate, formatMoney, type Booking } from "@/lib/bookings";
 import { useLocations } from "@/lib/location-store";
 import { mapEmbedUrl } from "@/lib/locations";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 
 export function StagePill({ stage }: { stage: Booking["stage"] }) {
+  const { t } = useI18n();
   return (
     <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
-      {STAGE_LABELS[stage]}
+      {t(`stage.${stage}` as TranslationKey)}
     </span>
   );
 }
@@ -15,6 +17,7 @@ export function StagePill({ stage }: { stage: Booking["stage"] }) {
 export function BookingCard({ booking }: { booking: Booking }) {
   const images = booking.images ?? [];
   const { getLocation } = useLocations();
+  const { t, tx, locale } = useI18n();
   const saved = booking.locationId ? getLocation(booking.locationId) : undefined;
   return (
     <Link
@@ -26,7 +29,8 @@ export function BookingCard({ booking }: { booking: Booking }) {
         <div className="min-w-0">
           <p className="truncate text-[15px] font-semibold">{booking.clientName}</p>
           <p className="truncate text-sm text-muted-foreground">
-            {booking.shootType} · {formatMoney(booking.price)}
+            {tx(`shoot.${booking.shootType}`, booking.shootType)} ·{" "}
+            {formatMoney(booking.price, locale)}
           </p>
         </div>
         <StagePill stage={booking.stage} />
@@ -34,7 +38,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5" strokeWidth={1.6} />
-          {formatDate(booking.date)} · {booking.time}
+          {formatDate(booking.date, locale)} · {booking.time}
         </span>
         {saved || booking.location ? (
           <span className="inline-flex min-w-0 items-center gap-1.5">
@@ -66,7 +70,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
           </div>
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.6} />
-            {images.length} photo{images.length > 1 ? "s" : ""}
+            {images.length} {images.length > 1 ? t("booking.photos") : t("booking.photo")}
           </span>
         </div>
       ) : null}

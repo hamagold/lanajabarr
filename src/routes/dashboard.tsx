@@ -4,7 +4,8 @@ import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { BookingCard } from "@/components/booking-card";
 import { useBookings } from "@/lib/booking-store";
-import { STAGES, STAGE_LABELS, formatMoney, type Stage } from "@/lib/bookings";
+import { STAGES, formatMoney, type Stage } from "@/lib/bookings";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
   const { bookings } = useBookings();
+  const { t, locale } = useI18n();
   const [filter, setFilter] = useState<Stage | "all">("all");
 
   const visible = filter === "all" ? bookings : bookings.filter((b) => b.stage === filter);
@@ -35,23 +37,27 @@ function Dashboard() {
     <AppShell
       header={
         <PageHeader
-          title="Good morning"
-          subtitle="Here's what's happening with your business."
+          title={t("dash.title")}
+          subtitle={t("dash.subtitle")}
         />
       }
     >
       <div className="grid grid-cols-2 gap-3">
-        <Stat label="Upcoming" value={String(upcoming)} hint="Bookings" />
-        <Stat label="Collected" value={formatMoney(revenue)} hint="Paid in full" />
+        <Stat label={t("dash.upcoming")} value={String(upcoming)} hint={t("dash.bookings")} />
+        <Stat
+          label={t("dash.collected")}
+          value={formatMoney(revenue, locale)}
+          hint={t("dash.paidInFull")}
+        />
       </div>
 
       <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1">
         <Chip active={filter === "all"} onClick={() => setFilter("all")}>
-          All
+          {t("dash.all")}
         </Chip>
         {STAGES.map((s) => (
           <Chip key={s} active={filter === s} onClick={() => setFilter(s)}>
-            {STAGE_LABELS[s]}
+            {t(`stage.${s}` as TranslationKey)}
           </Chip>
         ))}
       </div>
@@ -59,7 +65,7 @@ function Dashboard() {
       <div className="mt-4 space-y-3">
         {visible.length === 0 ? (
           <p className="surface p-6 text-center text-sm text-muted-foreground">
-            No bookings here yet.
+            {t("dash.empty")}
           </p>
         ) : (
           visible.map((b) => <BookingCard key={b.id} booking={b} />)
@@ -69,7 +75,7 @@ function Dashboard() {
       <Link
         to="/bookings/new"
         search={{}}
-        aria-label="New booking"
+        aria-label={t("dash.newBooking")}
         className="fixed bottom-24 left-1/2 z-40 ml-[7rem] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition-transform active:scale-95"
       >
         <Plus className="h-6 w-6" strokeWidth={1.8} />
