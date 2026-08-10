@@ -1,5 +1,6 @@
 import { MapPin } from "lucide-react";
 import { mapEmbedUrl, type SavedLocation } from "@/lib/locations";
+import { useI18n } from "@/lib/i18n";
 
 export function MapBox({
   location,
@@ -8,14 +9,15 @@ export function MapBox({
   location: string;
   saved?: SavedLocation | undefined;
 }) {
+  const { t } = useI18n();
   const label = saved ? saved.name : location;
   if (!label) {
     return (
       <section className="surface mt-4 p-4">
-        <p className="text-xs text-muted-foreground">Location</p>
+        <p className="text-xs text-muted-foreground">{t("booking.location")}</p>
         <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" strokeWidth={1.6} />
-          <span>No location set</span>
+          <span>{t("loc.noLocationSet")}</span>
         </div>
       </section>
     );
@@ -28,7 +30,7 @@ export function MapBox({
   return (
     <section className="surface mt-4 overflow-hidden">
       <div className="p-4">
-        <p className="text-xs text-muted-foreground">Location</p>
+        <p className="text-xs text-muted-foreground">{t("booking.location")}</p>
         <p className="mt-1 flex items-start gap-2 text-sm font-medium">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.6} />
           <span>{label}</span>

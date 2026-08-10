@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocations } from "@/lib/location-store";
 import { LOCATION_TAGS, searchPlaces, type GeoResult, type SavedLocation } from "@/lib/locations";
+import { useI18n } from "@/lib/i18n";
 
 function readFile(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -24,6 +25,7 @@ export function BookingLocationPicker({
   onAssign: (patch: { locationId?: string | undefined; location: string }) => void;
 }) {
   const { locations, ready, updateLocation } = useLocations();
+  const { t } = useI18n();
   const [editOpen, setEditOpen] = useState(false);
   const assigned = locationId ? locations.find((l) => l.id === locationId) : undefined;
   const missing = ready && !!locationId && !assigned;
@@ -31,7 +33,7 @@ export function BookingLocationPicker({
   return (
     <section className="surface mt-4 p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">Saved location</p>
+        <p className="text-xs text-muted-foreground">{t("loc.savedLocation")}</p>
         <Link to="/locations" className="text-xs underline underline-offset-2">
           Library
         </Link>
@@ -41,14 +43,14 @@ export function BookingLocationPicker({
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0">
             <p className="text-xs">
-              The saved location linked to this booking was deleted.
+              {t("loc.deletedLink")}
             </p>
             <button
               type="button"
               onClick={() => onAssign({ locationId: undefined, location: "" })}
               className="mt-1 text-xs underline underline-offset-2"
             >
-              Clear the link
+              {t("loc.clearLink")}
             </button>
           </div>
         </div>
@@ -68,7 +70,7 @@ export function BookingLocationPicker({
             if (loc) onAssign({ locationId: loc.id, location: loc.address || loc.name });
           }}
         >
-          <option value="">No saved location</option>
+          <option value="">{t("loc.noSaved")}</option>
           {locations.map((l) => (
             <option key={l.id} value={l.id}>
               {l.name}
@@ -84,14 +86,14 @@ export function BookingLocationPicker({
               onClick={() => setEditOpen((o) => !o)}
               className="text-xs underline underline-offset-2"
             >
-              {editOpen ? "Done editing" : "Quick edit"}
+              {editOpen ? t("loc.doneEditing") : t("loc.quickEdit")}
             </button>
             <Link
               to="/locations/$id"
               params={{ id: assigned.id }}
               className="text-xs underline underline-offset-2"
             >
-              Open location details
+              {t("loc.openDetails")}
             </Link>
           </div>
           {editOpen ? (
@@ -121,6 +123,7 @@ function QuickEdit({
   location: SavedLocation;
   onChange: (patch: Partial<SavedLocation>) => void;
 }) {
+  const { t, tx } = useI18n();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -135,9 +138,9 @@ function QuickEdit({
     try {
       const found = await searchPlaces(query.trim());
       setResults(found);
-      if (found.length === 0) setError("No places matched that search.");
+      if (found.length === 0) setError(t("loc.noMatches"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed.");
+      setError(err instanceof Error ? err.message : t("loc.searchFailed"));
     }
     setSearching(false);
   }
@@ -152,11 +155,11 @@ function QuickEdit({
   return (
     <div className="mt-4 space-y-4 border-t border-border pt-4">
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Name</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.name")}</Label>
         <Input value={location.name} onChange={(e) => onChange({ name: e.target.value })} />
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Address / area</Label>
+        <Label className="text-xs text-muted-foreground">{t("loc.addressArea")}</Label>
         <Input value={location.address} onChange={(e) => onChange({ address: e.target.value })} />
         {typeof location.lat === "number" ? (
           <p className="text-[11px] text-muted-foreground">
@@ -165,7 +168,7 @@ function QuickEdit({
         ) : null}
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Update coordinates</Label>
+        <Label className="text-xs text-muted-foreground">{t("loc.updateCoords")}</Label>
         <div className="flex gap-2">
           <Input
             value={query}
@@ -176,12 +179,12 @@ function QuickEdit({
                 void runSearch();
               }
             }}
-            placeholder="Search a place…"
+            placeholder={t("loc.searchPlace")}
           />
           <button
             type="button"
             onClick={() => void runSearch()}
-            aria-label="Search places"
+            aria-label={t("loc.searchPlaces")}
             className="inline-flex h-10 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-card"
           >
             {searching ? (
@@ -213,16 +216,16 @@ function QuickEdit({
         {error ? <p className="text-xs text-destructive">{error}</p> : null}
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Tags</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.tags")}</Label>
         <div className="flex flex-wrap gap-2">
-          {LOCATION_TAGS.map((t) => {
-            const on = tags.includes(t);
+          {LOCATION_TAGS.map((tag) => {
+            const on = tags.includes(tag);
             return (
               <button
-                key={t}
+                key={tag}
                 type="button"
                 onClick={() =>
-                  onChange({ tags: on ? tags.filter((x) => x !== t) : [...tags, t] })
+                  onChange({ tags: on ? tags.filter((x) => x !== tag) : [...tags, tag] })
                 }
                 className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
                   on
@@ -230,14 +233,14 @@ function QuickEdit({
                     : "border-border bg-card text-muted-foreground"
                 }`}
               >
-                {t}
+                {tx(`tag.${tag}`, tag)}
               </button>
             );
           })}
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Photos</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.photos")}</Label>
         {images.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
             {images.map((src, i) => (
@@ -245,7 +248,7 @@ function QuickEdit({
                 <img src={src} alt={location.name} className="h-full w-full object-cover" />
                 <button
                   type="button"
-                  aria-label="Remove photo"
+                  aria-label={t("loc.removePhoto")}
                   onClick={() => onChange({ images: images.filter((_, idx) => idx !== i) })}
                   className="absolute top-1 right-1 rounded-full bg-card/90 p-1"
                 >
@@ -257,7 +260,7 @@ function QuickEdit({
         ) : null}
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border py-3 text-xs text-muted-foreground">
           <ImagePlus className="h-4 w-4" strokeWidth={1.6} />
-          Add photos
+          {t("loc.addPhotos")}
           <input
             type="file"
             accept="image/*"
@@ -268,12 +271,12 @@ function QuickEdit({
         </label>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Notes</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.notes")}</Label>
         <Textarea
           rows={3}
           value={location.notes}
           onChange={(e) => onChange({ notes: e.target.value })}
-          placeholder="Parking, light, permits…"
+          placeholder={t("loc.notesPlaceholder")}
         />
       </div>
     </div>
