@@ -35,7 +35,7 @@ export function BookingLocationPicker({
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">{t("loc.savedLocation")}</p>
         <Link to="/locations" className="text-xs underline underline-offset-2">
-          Library
+          {t("loc.library")}
         </Link>
       </div>
       {missing ? (
