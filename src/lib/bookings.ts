@@ -73,19 +73,19 @@ export function newChecklist(): ChecklistItem[] {
   }));
 }
 
-export function formatMoney(value: number) {
-  return new Intl.NumberFormat("sv-SE", {
+export function formatMoney(value: number, locale = "sv-SE") {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "SEK",
     maximumFractionDigits: 0,
   }).format(value || 0);
 }
 
-export function formatDate(iso: string) {
+export function formatDate(iso: string, locale = "en-GB") {
   if (!iso) return "No date";
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return d.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
 }
 
 export function expensesTotal(list: Expense[] | undefined) {

@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSettingsProvider } from "../lib/app-settings";
+import { I18nProvider } from "../lib/i18n";
 import { BookingProvider } from "../lib/booking-store";
 import { LocationProvider } from "../lib/location-store";
 
@@ -133,14 +134,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppSettingsProvider>
+      <I18nProvider>
+        <AppSettingsProvider>
         <BookingProvider>
           <LocationProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </LocationProvider>
         </BookingProvider>
-      </AppSettingsProvider>
+        </AppSettingsProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
