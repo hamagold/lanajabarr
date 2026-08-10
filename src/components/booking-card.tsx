@@ -17,7 +17,7 @@ export function StagePill({ stage }: { stage: Booking["stage"] }) {
 export function BookingCard({ booking }: { booking: Booking }) {
   const images = booking.images ?? [];
   const { getLocation } = useLocations();
-  const { t, locale } = useI18n();
+  const { t, tx, locale } = useI18n();
   const saved = booking.locationId ? getLocation(booking.locationId) : undefined;
   return (
     <Link
@@ -29,7 +29,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
         <div className="min-w-0">
           <p className="truncate text-[15px] font-semibold">{booking.clientName}</p>
           <p className="truncate text-sm text-muted-foreground">
-            {t(`shoot.${booking.shootType}` as TranslationKey)} ·{" "}
+            {tx(`shoot.${booking.shootType}`, booking.shootType)} ·{" "}
             {formatMoney(booking.price, locale)}
           </p>
         </div>

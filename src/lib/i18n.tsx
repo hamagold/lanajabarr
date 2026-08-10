@@ -587,6 +587,8 @@ type Ctx = {
   locale: string;
   setLang: (lang: Lang) => void;
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string;
+  /** Translate a dynamic value, falling back to the raw text when unknown. */
+  tx: (key: string, fallback: string) => string;
 };
 
 const I18nContext = createContext<Ctx | null>(null);
@@ -626,9 +628,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
+  const tx = useCallback(
+    (key: string, fallback: string) => {
+      const dict = DICTS[lang] as Record<string, string>;
+      return dict[key] ?? (en as Record<string, string>)[key] ?? fallback;
+    },
+    [lang],
+  );
+
   const value = useMemo(
-    () => ({ lang, dir: meta.dir as "ltr" | "rtl", locale: meta.locale, setLang, t }),
-    [lang, meta.dir, meta.locale, setLang, t],
+    () => ({ lang, dir: meta.dir as "ltr" | "rtl", locale: meta.locale, setLang, t, tx }),
+    [lang, meta.dir, meta.locale, setLang, t, tx],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
