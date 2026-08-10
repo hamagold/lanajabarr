@@ -15,6 +15,7 @@ import {
   newChecklist,
   type PaymentStatus,
 } from "@/lib/bookings";
+import { useI18n, type TranslationKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/bookings/new")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/bookings/new")({
 function NewBooking() {
   const { addBooking, bookings } = useBookings();
   const { locations } = useLocations();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const { date: presetDate } = Route.useSearch();
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -72,14 +74,18 @@ function NewBooking() {
   return (
     <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16">
       <header className="flex items-center gap-2 pt-8 pb-5">
-        <Link to="/dashboard" aria-label="Back" className="-ml-2 p-2 text-muted-foreground">
+        <Link
+          to="/dashboard"
+          aria-label={t("common.back")}
+          className="-ml-2 p-2 text-muted-foreground"
+        >
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl">New booking</h1>
+        <h1 className="text-2xl">{t("new.title")}</h1>
       </header>
 
       <form onSubmit={submit} className="space-y-4">
-        <Field label="Client name">
+        <Field label={t("new.clientName")}>
           <Input
             required
             value={form.clientName}
@@ -88,10 +94,10 @@ function NewBooking() {
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Phone">
+          <Field label={t("new.phone")}>
             <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} />
           </Field>
-          <Field label="Email">
+          <Field label={t("new.email")}>
             <Input
               type="email"
               value={form.email}
@@ -99,24 +105,26 @@ function NewBooking() {
             />
           </Field>
         </div>
-        <Field label="Photoshoot type">
+        <Field label={t("new.type")}>
           <select
             className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
             value={form.shootType}
             onChange={(e) => set("shootType", e.target.value)}
           >
-            {SHOOT_TYPES.map((t) => (
-              <option key={t}>{t}</option>
+            {SHOOT_TYPES.map((s) => (
+              <option key={s} value={s}>
+                {t(`shoot.${s}` as TranslationKey)}
+              </option>
             ))}
           </select>
         </Field>
-        <Field label="Date">
+        <Field label={t("new.date")}>
           <button
             type="button"
             onClick={() => setPickerOpen((o) => !o)}
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-card px-3 text-sm"
           >
-            <span>{formatDate(form.date)}</span>
+            <span>{formatDate(form.date, locale)}</span>
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </button>
           {pickerOpen ? (
@@ -132,10 +140,10 @@ function NewBooking() {
             </div>
           ) : null}
         </Field>
-        <Field label="Time">
+        <Field label={t("new.time")}>
           <Input type="time" value={form.time} onChange={(e) => set("time", e.target.value)} />
         </Field>
-        <Field label="Saved location">
+        <Field label={t("new.savedLocation")}>
           <select
             className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
             value={form.locationId}
@@ -149,7 +157,7 @@ function NewBooking() {
               }));
             }}
           >
-            <option value="">None — type it manually</option>
+            <option value="">{t("new.noneManual")}</option>
             {locations.map((l) => (
               <option key={l.id} value={l.id}>
                 {l.name}
@@ -157,7 +165,7 @@ function NewBooking() {
             ))}
           </select>
         </Field>
-        <Field label="Location">
+        <Field label={t("new.locationText")}>
           <Input
             value={form.location}
             onChange={(e) => set("location", e.target.value)}
@@ -165,7 +173,7 @@ function NewBooking() {
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Price (SEK)">
+          <Field label={t("new.price")}>
             <Input
               inputMode="numeric"
               value={form.price}
@@ -173,31 +181,33 @@ function NewBooking() {
               placeholder="350"
             />
           </Field>
-          <Field label="Payment status">
+          <Field label={t("new.paymentStatus")}>
             <select
               className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
               value={form.paymentStatus}
               onChange={(e) => set("paymentStatus", e.target.value)}
             >
               {PAYMENT_STATUSES.map((p) => (
-                <option key={p}>{p}</option>
+              <option key={p} value={p}>
+                {t(`pay.${p}` as TranslationKey)}
+              </option>
               ))}
             </select>
           </Field>
         </div>
-        <Field label="Delivery deadline">
+        <Field label={t("new.deadline")}>
           <Input
             type="date"
             value={form.deliveryDeadline}
             onChange={(e) => set("deliveryDeadline", e.target.value)}
           />
         </Field>
-        <Field label="Notes">
+        <Field label={t("new.notes")}>
           <Textarea
             rows={4}
             value={form.notes}
             onChange={(e) => set("notes", e.target.value)}
-            placeholder="Anything important about the client or session…"
+            placeholder={t("booking.notesPlaceholder")}
           />
         </Field>
 
@@ -205,7 +215,7 @@ function NewBooking() {
           type="submit"
           className="w-full rounded-full bg-primary px-6 py-3.5 text-[15px] font-medium text-primary-foreground transition-transform active:scale-[0.98]"
         >
-          Create booking
+          {t("new.create")}
         </button>
       </form>
     </div>
