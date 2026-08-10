@@ -1,8 +1,9 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Mail, Phone, Trash2, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { MapBox } from "@/components/map-box";
 import { BookingLocationPicker } from "@/components/booking-location-picker";
 import { useBookings } from "@/lib/booking-store";
@@ -13,6 +14,10 @@ import {
   STAGE_LABELS,
   formatDate,
   formatMoney,
+  expensesTotal,
+  bookingProfit,
+  type Expense,
+  type Booking,
   type PaymentStatus,
   type Stage,
 } from "@/lib/bookings";
@@ -207,6 +212,117 @@ function BookingDetails() {
       </section>
 
       <BookingGallery booking={booking} updateBooking={updateBooking} />
+
+      <BookingExpenses booking={booking} updateBooking={updateBooking} />
+    </div>
+  );
+}
+
+function BookingExpenses({
+  booking,
+  updateBooking,
+}: {
+  booking: Booking;
+  updateBooking: (id: string, patch: { expenses: Expense[] }) => void;
+}) {
+  const expenses = booking.expenses ?? [];
+  const [label, setLabel] = useState("");
+  const [amount, setAmount] = useState("");
+
+  const total = expensesTotal(expenses);
+  const profit = bookingProfit(booking.price, expenses);
+
+  function add() {
+    const value = Number(amount);
+    if (!label.trim() || !Number.isFinite(value) || value <= 0) return;
+    updateBooking(booking.id, {
+      expenses: [
+        ...expenses,
+        { id: `e-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: label.trim(), amount: value },
+      ],
+    });
+    setLabel("");
+    setAmount("");
+  }
+
+  return (
+    <section className="surface mt-4 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">Expenses</p>
+        <p className="text-xs text-muted-foreground">{expenses.length} item{expenses.length === 1 ? "" : "s"}</p>
+      </div>
+
+      {expenses.length > 0 ? (
+        <ul className="mt-3 divide-y divide-border">
+          {expenses.map((e) => (
+            <li key={e.id} className="flex items-center justify-between gap-3 py-2.5">
+              <span className="min-w-0 truncate text-sm">{e.label}</span>
+              <span className="flex shrink-0 items-center gap-2">
+                <span className="text-sm font-medium">{formatMoney(e.amount)}</span>
+                <button
+                  type="button"
+                  aria-label={`Remove ${e.label}`}
+                  onClick={() =>
+                    updateBooking(booking.id, { expenses: expenses.filter((x) => x.id !== e.id) })
+                  }
+                  className="text-muted-foreground"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2} />
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Add costs like fuel, props or assistants to see your real profit.
+        </p>
+      )}
+
+      <div className="mt-3 grid grid-cols-[minmax(0,1fr)_96px_auto] gap-2">
+        <Input
+          value={label}
+          onChange={(ev) => setLabel(ev.target.value)}
+          placeholder="Fuel"
+          aria-label="Expense name"
+        />
+        <Input
+          value={amount}
+          onChange={(ev) => setAmount(ev.target.value)}
+          inputMode="decimal"
+          type="number"
+          min="0"
+          placeholder="50"
+          aria-label="Expense amount"
+        />
+        <button
+          type="button"
+          onClick={add}
+          className="rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98]"
+        >
+          Add
+        </button>
+      </div>
+
+      <div className="mt-4 space-y-2 border-t border-border pt-3">
+        <SummaryRow label="Income" value={formatMoney(booking.price)} />
+        <SummaryRow label="Expenses" value={`− ${formatMoney(total)}`} />
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <span className="text-sm font-medium">Profit</span>
+          <span className={`text-base font-semibold ${profit < 0 ? "text-destructive" : ""}`}>
+            {formatMoney(profit)}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm">{value}</span>
     </div>
   );
 }

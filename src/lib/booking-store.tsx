@@ -16,6 +16,7 @@ function normalize(list: Booking[]): Booking[] {
     ...b,
     images: Array.isArray(b?.images) ? b.images : [],
     checklist: Array.isArray(b?.checklist) ? b.checklist : [],
+    expenses: Array.isArray(b?.expenses) ? b.expenses : [],
   }));
 }
 
