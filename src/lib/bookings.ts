@@ -34,6 +34,8 @@ export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export type ChecklistItem = { id: string; label: string; done: boolean };
 
+export type Expense = { id: string; label: string; amount: number };
+
 export type Booking = {
   id: string;
   clientName: string;
@@ -51,6 +53,7 @@ export type Booking = {
   checklist: ChecklistItem[];
   stage: Stage;
   images: string[]; // base64 data URLs
+  expenses?: Expense[];
 };
 
 export const DEFAULT_CHECKLIST = [
@@ -83,6 +86,14 @@ export function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+export function expensesTotal(list: Expense[] | undefined) {
+  return (list ?? []).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+}
+
+export function bookingProfit(price: number, list: Expense[] | undefined) {
+  return (Number(price) || 0) - expensesTotal(list);
 }
 
 function iso(offsetDays: number) {
