@@ -153,6 +153,8 @@ const en = {
   "new.deadline": "Delivery deadline",
   "new.notes": "Notes",
   "new.create": "Create booking",
+  "new.savedLocation": "Saved location",
+  "new.noneManual": "None — type it manually",
 
   // locations
   "loc.title": "Locations",
@@ -337,6 +339,8 @@ const ar: Record<TranslationKey, string> = {
   "new.deadline": "موعد التسليم",
   "new.notes": "ملاحظات",
   "new.create": "إنشاء الحجز",
+  "new.savedLocation": "موقع محفوظ",
+  "new.noneManual": "بدون — اكتبه يدوياً",
 
   "loc.title": "المواقع",
   "loc.subtitle": "أماكنك المحفوظة للتصوير.",
@@ -516,6 +520,8 @@ const sv: Record<TranslationKey, string> = {
   "new.deadline": "Leveransdeadline",
   "new.notes": "Anteckningar",
   "new.create": "Skapa bokning",
+  "new.savedLocation": "Sparad plats",
+  "new.noneManual": "Ingen — skriv manuellt",
 
   "loc.title": "Platser",
   "loc.subtitle": "Dina sparade platser för fotografering.",
