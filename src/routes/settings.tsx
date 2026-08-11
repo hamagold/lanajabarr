@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bell,
+  Check,
+  ChevronDown,
   Coins,
   CreditCard,
   Download,
@@ -49,6 +51,10 @@ function SettingsPage() {
   const logoRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [open, setOpen] = useState<"lang" | "currency" | null>(null);
+
+  const activeLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
+  const activeCurrency = CURRENCIES.find((c) => c.code === settings.currency) ?? CURRENCIES[0];
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -106,64 +112,45 @@ function SettingsPage() {
         ))}
       </div>
 
-      <section className="surface mt-4 p-4">
-        <div className="flex items-center gap-3">
-          <Languages className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("set.language")}</p>
-            <p className="text-xs text-muted-foreground">{t("set.languageHint")}</p>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              onClick={() => setLang(l.code)}
-              aria-pressed={lang === l.code}
-              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
-                lang === l.code
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              <span className="block text-sm font-medium">{l.native}</span>
-              <span className="block text-[11px] opacity-75">{l.label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="surface mt-4 p-4">
-        <div className="flex items-center gap-3">
-          <Coins className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("set.currency")}</p>
-            <p className="text-xs text-muted-foreground">{t("set.currencyHint")}</p>
-          </div>
-          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
-            {settings.currency}
-          </span>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {CURRENCIES.map((c) => (
-            <button
-              key={c.code}
-              type="button"
-              onClick={() => setCurrency(c.code)}
-              aria-pressed={settings.currency === c.code}
-              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
-                settings.currency === c.code
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              <span className="block text-base font-medium">{c.symbol}</span>
-              <span className="block text-[11px] opacity-75">{c.code}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+      <div className="surface mt-4 divide-y divide-border overflow-hidden">
+        <SelectRow
+          icon={Languages}
+          label={t("set.language")}
+          hint={t("set.languageHint")}
+          value={activeLang.native}
+          open={open === "lang"}
+          onToggle={() => setOpen(open === "lang" ? null : "lang")}
+          options={LANGUAGES.map((l) => ({
+            key: l.code,
+            lead: l.native,
+            title: l.label,
+            selected: lang === l.code,
+            onSelect: () => {
+              setLang(l.code);
+              setOpen(null);
+            },
+          }))}
+        />
+        <SelectRow
+          icon={Coins}
+          label={t("set.currency")}
+          hint={t("set.currencyHint")}
+          value={`${activeCurrency.symbol} ${activeCurrency.code}`}
+          open={open === "currency"}
+          onToggle={() => setOpen(open === "currency" ? null : "currency")}
+          options={CURRENCIES.map((c) => ({
+            key: c.code,
+            lead: c.symbol,
+            title: c.code,
+            subtitle: c.label,
+            selected: settings.currency === c.code,
+            onSelect: () => {
+              setCurrency(c.code);
+              setOpen(null);
+            },
+          }))}
+        />
+      </div>
 
       <section className="surface mt-4 p-4">
         <div className="flex items-center gap-3">
