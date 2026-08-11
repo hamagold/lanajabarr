@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bell,
+  Check,
+  ChevronDown,
   Coins,
   CreditCard,
   Download,
@@ -49,6 +51,10 @@ function SettingsPage() {
   const logoRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [open, setOpen] = useState<"lang" | "currency" | null>(null);
+
+  const activeLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
+  const activeCurrency = CURRENCIES.find((c) => c.code === settings.currency) ?? CURRENCIES[0];
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -106,64 +112,45 @@ function SettingsPage() {
         ))}
       </div>
 
-      <section className="surface mt-4 p-4">
-        <div className="flex items-center gap-3">
-          <Languages className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("set.language")}</p>
-            <p className="text-xs text-muted-foreground">{t("set.languageHint")}</p>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              onClick={() => setLang(l.code)}
-              aria-pressed={lang === l.code}
-              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
-                lang === l.code
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              <span className="block text-sm font-medium">{l.native}</span>
-              <span className="block text-[11px] opacity-75">{l.label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="surface mt-4 p-4">
-        <div className="flex items-center gap-3">
-          <Coins className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("set.currency")}</p>
-            <p className="text-xs text-muted-foreground">{t("set.currencyHint")}</p>
-          </div>
-          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
-            {settings.currency}
-          </span>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {CURRENCIES.map((c) => (
-            <button
-              key={c.code}
-              type="button"
-              onClick={() => setCurrency(c.code)}
-              aria-pressed={settings.currency === c.code}
-              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
-                settings.currency === c.code
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground"
-              }`}
-            >
-              <span className="block text-base font-medium">{c.symbol}</span>
-              <span className="block text-[11px] opacity-75">{c.code}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+      <div className="surface mt-4 divide-y divide-border overflow-hidden">
+        <SelectRow
+          icon={Languages}
+          label={t("set.language")}
+          hint={t("set.languageHint")}
+          value={activeLang.native}
+          open={open === "lang"}
+          onToggle={() => setOpen(open === "lang" ? null : "lang")}
+          options={LANGUAGES.map((l) => ({
+            key: l.code,
+            lead: l.native,
+            title: l.label,
+            selected: lang === l.code,
+            onSelect: () => {
+              setLang(l.code);
+              setOpen(null);
+            },
+          }))}
+        />
+        <SelectRow
+          icon={Coins}
+          label={t("set.currency")}
+          hint={t("set.currencyHint")}
+          value={`${activeCurrency.symbol} ${activeCurrency.code}`}
+          open={open === "currency"}
+          onToggle={() => setOpen(open === "currency" ? null : "currency")}
+          options={CURRENCIES.map((c) => ({
+            key: c.code,
+            lead: c.symbol,
+            title: c.code,
+            subtitle: c.label,
+            selected: settings.currency === c.code,
+            onSelect: () => {
+              setCurrency(c.code);
+              setOpen(null);
+            },
+          }))}
+        />
+      </div>
 
       <section className="surface mt-4 p-4">
         <div className="flex items-center gap-3">
@@ -331,5 +318,94 @@ function ModeChip({
     >
       {children}
     </button>
+  );
+}
+type SelectOption = {
+  key: string;
+  lead: string;
+  title: string;
+  subtitle?: string;
+  selected: boolean;
+  onSelect: () => void;
+};
+
+function SelectRow({
+  icon: Icon,
+  label,
+  hint,
+  value,
+  open,
+  onToggle,
+  options,
+}: {
+  icon: LucideIcon;
+  label: string;
+  hint: string;
+  value: string;
+  open: boolean;
+  onToggle: () => void;
+  options: SelectOption[];
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-secondary"
+      >
+        <Icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-xs text-muted-foreground">{hint}</p>
+        </div>
+        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+          {value}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          strokeWidth={1.8}
+        />
+      </button>
+      <div
+        className={`grid transition-all duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <ul className="space-y-1 px-3 pb-3">
+            {options.map((o) => (
+              <li key={o.key}>
+                <button
+                  type="button"
+                  onClick={o.onSelect}
+                  aria-pressed={o.selected}
+                  className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition-colors ${
+                    o.selected ? "border-primary bg-secondary" : "border-transparent bg-card"
+                  }`}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-medium">
+                    {o.lead}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{o.title}</span>
+                    {o.subtitle ? (
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {o.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                  {o.selected ? (
+                    <Check className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+                  ) : null}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
