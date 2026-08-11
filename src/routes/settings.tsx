@@ -136,13 +136,38 @@ function SettingsPage() {
 
       <section className="surface mt-4 p-4">
         <div className="flex items-center gap-3">
-          <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
+          <Coins className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{t("set.branding")}</p>
-            <p className="text-xs text-muted-foreground">{t("set.brandingHint")}</p>
+            <p className="text-sm font-medium">{t("set.currency")}</p>
+            <p className="text-xs text-muted-foreground">{t("set.currencyHint")}</p>
           </div>
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+            {settings.currency}
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {CURRENCIES.map((c) => (
+            <button
+              key={c.code}
+              type="button"
+              onClick={() => setCurrency(c.code)}
+              aria-pressed={settings.currency === c.code}
+              className={`rounded-2xl border px-2 py-3 text-center transition-colors ${
+                settings.currency === c.code
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground"
+              }`}
+            >
+              <span className="block text-base font-medium">{c.symbol}</span>
+              <span className="block text-[11px] opacity-75">{c.code}</span>
+            </button>
+          ))}
         </div>
       </section>
+
+      <section className="surface mt-4 p-4">
+        <div className="flex items-center gap-3">
+          <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">{t("set.branding")}</p>
             <p className="text-xs text-muted-foreground">{t("set.brandingHint")}</p>
