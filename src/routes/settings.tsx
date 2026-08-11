@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bell,
+  Coins,
   CreditCard,
   Download,
   HelpCircle,
@@ -17,6 +18,7 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useAppSettings } from "@/lib/app-settings";
+import { CURRENCIES } from "@/lib/currency";
 import { useBookings } from "@/lib/booking-store";
 import { downloadExport, parseImport } from "@/lib/booking-io";
 import { LANGUAGES, useI18n, type TranslationKey } from "@/lib/i18n";
@@ -41,7 +43,7 @@ const ROWS: { icon: LucideIcon; label: TranslationKey; hint: TranslationKey }[] 
 
 function SettingsPage() {
   const { bookings, importBookings } = useBookings();
-  const { settings, setName, setLogo, reset } = useAppSettings();
+  const { settings, setName, setLogo, setCurrency, reset } = useAppSettings();
   const { t, lang, setLang } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
