@@ -7,17 +7,20 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { isCurrencyCode, type CurrencyCode } from "./currency";
 
 const KEY = "shootflow.appSettings.v1";
 
 export type AppSettings = {
   name: string;
   logo: string | null; // base64 data URL or null
+  currency: CurrencyCode;
 };
 
 const DEFAULTS: AppSettings = {
   name: "Shootflow",
   logo: null,
+  currency: "SEK",
 };
 
 function normalize(raw: unknown): AppSettings {
@@ -26,6 +29,7 @@ function normalize(raw: unknown): AppSettings {
   return {
     name: typeof r.name === "string" && r.name.trim() ? r.name.trim() : DEFAULTS.name,
     logo: typeof r.logo === "string" && r.logo.startsWith("data:") ? r.logo : null,
+    currency: isCurrencyCode(r.currency) ? r.currency : DEFAULTS.currency,
   };
 }
 
@@ -34,6 +38,7 @@ type Ctx = {
   ready: boolean;
   setName: (name: string) => void;
   setLogo: (dataUrl: string | null) => void;
+  setCurrency: (code: CurrencyCode) => void;
   reset: () => void;
 };
 
@@ -70,13 +75,17 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     setSettings((p) => ({ ...p, logo }));
   }, []);
 
+  const setCurrency = useCallback((currency: CurrencyCode) => {
+    setSettings((p) => ({ ...p, currency }));
+  }, []);
+
   const reset = useCallback(() => {
     setSettings(DEFAULTS);
   }, []);
 
   const value = useMemo(
-    () => ({ settings, ready, setName, setLogo, reset }),
-    [settings, ready, setName, setLogo, reset],
+    () => ({ settings, ready, setName, setLogo, setCurrency, reset }),
+    [settings, ready, setName, setLogo, setCurrency, reset],
   );
 
   return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>;
