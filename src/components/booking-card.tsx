@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ImageIcon } from "lucide-react";
-import { formatDate, formatMoney, type Booking } from "@/lib/bookings";
+import { formatDate, type Booking } from "@/lib/bookings";
+import { useMoney } from "@/lib/money";
 import { useLocations } from "@/lib/location-store";
 import { mapEmbedUrl } from "@/lib/locations";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
@@ -18,6 +19,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
   const images = booking.images ?? [];
   const { getLocation } = useLocations();
   const { t, tx, locale } = useI18n();
+  const { money } = useMoney();
   const saved = booking.locationId ? getLocation(booking.locationId) : undefined;
   return (
     <Link
@@ -30,7 +32,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
           <p className="truncate text-[15px] font-semibold">{booking.clientName}</p>
           <p className="truncate text-sm text-muted-foreground">
             {tx(`shoot.${booking.shootType}`, booking.shootType)} ·{" "}
-            {formatMoney(booking.price, locale)}
+            {money(booking.price)}
           </p>
         </div>
         <StagePill stage={booking.stage} />

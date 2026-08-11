@@ -4,7 +4,8 @@ import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { BookingCard } from "@/components/booking-card";
 import { useBookings } from "@/lib/booking-store";
-import { STAGES, formatMoney, type Stage } from "@/lib/bookings";
+import { STAGES, type Stage } from "@/lib/bookings";
+import { useMoney } from "@/lib/money";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/dashboard")({
@@ -24,7 +25,8 @@ export const Route = createFileRoute("/dashboard")({
 
 function Dashboard() {
   const { bookings } = useBookings();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
+  const { money } = useMoney();
   const [filter, setFilter] = useState<Stage | "all">("all");
 
   const visible = filter === "all" ? bookings : bookings.filter((b) => b.stage === filter);
@@ -46,7 +48,7 @@ function Dashboard() {
         <Stat label={t("dash.upcoming")} value={String(upcoming)} hint={t("dash.bookings")} />
         <Stat
           label={t("dash.collected")}
-          value={formatMoney(revenue, locale)}
+          value={money(revenue)}
           hint={t("dash.paidInFull")}
         />
       </div>
@@ -74,7 +76,7 @@ function Dashboard() {
 
       <Link
         to="/bookings/new"
-        search={{}}
+        search={{ date: undefined }}
         aria-label={t("dash.newBooking")}
         className="fixed bottom-24 left-1/2 z-40 ml-[7rem] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition-transform active:scale-95"
       >
