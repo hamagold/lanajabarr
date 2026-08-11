@@ -73,10 +73,10 @@ export function newChecklist(): ChecklistItem[] {
   }));
 }
 
-export function formatMoney(value: number, locale = "sv-SE") {
+export function formatMoney(value: number, locale = "sv-SE", currency = "SEK") {
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "SEK",
+    currency,
     maximumFractionDigits: 0,
   }).format(value || 0);
 }
