@@ -320,3 +320,92 @@ function ModeChip({
     </button>
   );
 }
+type SelectOption = {
+  key: string;
+  lead: string;
+  title: string;
+  subtitle?: string;
+  selected: boolean;
+  onSelect: () => void;
+};
+
+function SelectRow({
+  icon: Icon,
+  label,
+  hint,
+  value,
+  open,
+  onToggle,
+  options,
+}: {
+  icon: LucideIcon;
+  label: string;
+  hint: string;
+  value: string;
+  open: boolean;
+  onToggle: () => void;
+  options: SelectOption[];
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-secondary"
+      >
+        <Icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-xs text-muted-foreground">{hint}</p>
+        </div>
+        <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+          {value}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          strokeWidth={1.8}
+        />
+      </button>
+      <div
+        className={`grid transition-all duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <ul className="space-y-1 px-3 pb-3">
+            {options.map((o) => (
+              <li key={o.key}>
+                <button
+                  type="button"
+                  onClick={o.onSelect}
+                  aria-pressed={o.selected}
+                  className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition-colors ${
+                    o.selected ? "border-primary bg-secondary" : "border-transparent bg-card"
+                  }`}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-medium">
+                    {o.lead}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{o.title}</span>
+                    {o.subtitle ? (
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {o.subtitle}
+                      </span>
+                    ) : null}
+                  </span>
+                  {o.selected ? (
+                    <Check className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+                  ) : null}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
