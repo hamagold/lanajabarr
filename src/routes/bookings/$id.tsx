@@ -13,7 +13,6 @@ import {
   STAGES,
   STAGE_LABELS,
   formatDate,
-  formatMoney,
   expensesTotal,
   bookingProfit,
   type Expense,
@@ -21,6 +20,7 @@ import {
   type PaymentStatus,
   type Stage,
 } from "@/lib/bookings";
+import { useMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/bookings/$id")({
   head: () => ({
@@ -137,7 +137,7 @@ function BookingDetails() {
       <section className="surface mt-4 divide-y divide-border">
         <Row label="Photoshoot type" value={booking.shootType} />
         <Row label="Date & time" value={`${formatDate(booking.date)} · ${booking.time}`} />
-        <Row label="Price" value={formatMoney(booking.price)} />
+        <Row label="Price" value={money(booking.price)} />
         <Row label="Delivery deadline" value={formatDate(booking.deliveryDeadline)} />
         <div className="flex items-center justify-between gap-3 p-4">
           <span className="text-xs text-muted-foreground">Payment status</span>
@@ -258,7 +258,7 @@ function BookingExpenses({
             <li key={e.id} className="flex items-center justify-between gap-3 py-2.5">
               <span className="min-w-0 truncate text-sm">{e.label}</span>
               <span className="flex shrink-0 items-center gap-2">
-                <span className="text-sm font-medium">{formatMoney(e.amount)}</span>
+                <span className="text-sm font-medium">{money(e.amount)}</span>
                 <button
                   type="button"
                   aria-label={`Remove ${e.label}`}
@@ -305,12 +305,12 @@ function BookingExpenses({
       </div>
 
       <div className="mt-4 space-y-2 border-t border-border pt-3">
-        <SummaryRow label="Income" value={formatMoney(booking.price)} />
-        <SummaryRow label="Expenses" value={`− ${formatMoney(total)}`} />
+        <SummaryRow label="Income" value={money(booking.price)} />
+        <SummaryRow label="Expenses" value={`− ${money(total)}`} />
         <div className="flex items-center justify-between gap-3 pt-1">
           <span className="text-sm font-medium">Profit</span>
           <span className={`text-base font-semibold ${profit < 0 ? "text-destructive" : ""}`}>
-            {formatMoney(profit)}
+            {money(profit)}
           </span>
         </div>
       </div>
