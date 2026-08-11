@@ -16,6 +16,7 @@ import {
   type PaymentStatus,
 } from "@/lib/bookings";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
+import { useMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/bookings/new")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -36,6 +37,7 @@ function NewBooking() {
   const { addBooking, bookings } = useBookings();
   const { locations } = useLocations();
   const { t, locale } = useI18n();
+  const { currency } = useMoney();
   const navigate = useNavigate();
   const { date: presetDate } = Route.useSearch();
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -173,7 +175,7 @@ function NewBooking() {
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t("new.price")}>
+          <Field label={`${t("new.price")} (${currency})`}>
             <Input
               inputMode="numeric"
               value={form.price}

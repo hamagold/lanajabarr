@@ -41,6 +41,7 @@ function BookingDetails() {
   const { id } = Route.useParams();
   const { getBooking, updateBooking, removeBooking, ready } = useBookings();
   const { getLocation } = useLocations();
+  const { money } = useMoney();
   const navigate = useNavigate();
   const booking = getBooking(id);
 
@@ -226,6 +227,7 @@ function BookingExpenses({
   updateBooking: (id: string, patch: { expenses: Expense[] }) => void;
 }) {
   const expenses = booking.expenses ?? [];
+  const { money } = useMoney();
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
 
