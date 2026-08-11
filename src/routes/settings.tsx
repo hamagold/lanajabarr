@@ -142,6 +142,12 @@ function SettingsPage() {
             <p className="text-xs text-muted-foreground">{t("set.brandingHint")}</p>
           </div>
         </div>
+      </section>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{t("set.branding")}</p>
+            <p className="text-xs text-muted-foreground">{t("set.brandingHint")}</p>
+          </div>
+        </div>
 
         <div className="mt-4">
           <label htmlFor="app-name" className="text-xs text-muted-foreground">
