@@ -9,7 +9,10 @@ import {
   HelpCircle,
   ImageIcon,
   Languages,
+  Monitor,
+  Moon,
   RefreshCcw,
+  Sun,
   Upload,
   User,
   X,
@@ -45,16 +48,22 @@ const ROWS: { icon: LucideIcon; label: TranslationKey; hint: TranslationKey }[] 
 
 function SettingsPage() {
   const { bookings, importBookings } = useBookings();
-  const { settings, setName, setLogo, setCurrency, reset } = useAppSettings();
+  const { settings, setName, setLogo, setCurrency, setTheme, reset } = useAppSettings();
   const { t, lang, setLang } = useI18n();
   const fileRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
-  const [open, setOpen] = useState<"lang" | "currency" | null>(null);
+  const [open, setOpen] = useState<"lang" | "currency" | "theme" | null>(null);
 
   const activeLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
   const activeCurrency = CURRENCIES.find((c) => c.code === settings.currency) ?? CURRENCIES[0];
+  const THEME_OPTIONS = [
+    { key: "light" as const, icon: Sun, title: t("theme.light") },
+    { key: "dark" as const, icon: Moon, title: t("theme.dark") },
+    { key: "system" as const, icon: Monitor, title: t("theme.system") },
+  ];
+  const activeTheme = THEME_OPTIONS.find((o) => o.key === settings.theme) ?? THEME_OPTIONS[0]!;
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -113,6 +122,24 @@ function SettingsPage() {
       </div>
 
       <div className="surface mt-4 divide-y divide-border overflow-hidden">
+        <SelectRow
+          icon={activeTheme.icon}
+          label={t("set.theme")}
+          hint={t("set.themeHint")}
+          value={activeTheme.title}
+          open={open === "theme"}
+          onToggle={() => setOpen(open === "theme" ? null : "theme")}
+          options={THEME_OPTIONS.map((o) => ({
+            key: o.key,
+            lead: o.key === "light" ? "☀" : o.key === "dark" ? "☾" : "◐",
+            title: o.title,
+            selected: settings.theme === o.key,
+            onSelect: () => {
+              setTheme(o.key);
+              setOpen(null);
+            },
+          }))}
+        />
         <SelectRow
           icon={Languages}
           label={t("set.language")}
