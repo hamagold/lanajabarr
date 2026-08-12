@@ -126,6 +126,7 @@ function SettingsPage() {
           icon={Languages}
           label={t("set.language")}
           hint={t("set.languageHint")}
+          hint={t("set.languageHint")}
           value={activeLang.native}
           open={open === "lang"}
           onToggle={() => setOpen(open === "lang" ? null : "lang")}
