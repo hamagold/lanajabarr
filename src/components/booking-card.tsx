@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, MapPin, ImageIcon } from "lucide-react";
-import { formatDate, type Booking } from "@/lib/bookings";
+import { bookingProgress, formatDate, type Booking } from "@/lib/bookings";
 import { useMoney } from "@/lib/money";
 import { useLocations } from "@/lib/location-store";
 import { mapEmbedUrl } from "@/lib/locations";
@@ -12,6 +12,23 @@ export function StagePill({ stage }: { stage: Booking["stage"] }) {
     <span className="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
       {t(`stage.${stage}` as TranslationKey)}
     </span>
+  );
+}
+
+export function ProgressBar({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>{label}</span>
+        <span className="font-medium text-foreground">{value}%</span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-500"
+          style={{ width: `${value}%` }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -49,6 +66,10 @@ export function BookingCard({ booking }: { booking: Booking }) {
           </span>
         ) : null}
       </div>
+      <ProgressBar
+        value={bookingProgress(booking)}
+        label={booking.stage === "completed" ? t("booking.done") : t("booking.progress")}
+      />
       {saved ? (
         <div className="relative mt-3 h-24 w-full overflow-hidden rounded-xl bg-muted">
           <iframe
