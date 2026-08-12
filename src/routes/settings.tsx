@@ -123,9 +123,25 @@ function SettingsPage() {
 
       <div className="surface mt-4 divide-y divide-border overflow-hidden">
         <SelectRow
+          icon={activeTheme.icon}
+          label={t("set.theme")}
+          hint={t("set.themeHint")}
+          value={activeTheme.title}
+          open={open === "theme"}
+          onToggle={() => setOpen(open === "theme" ? null : "theme")}
+          options={THEME_OPTIONS.map((o) => ({
+            key: o.key,
+            title: o.title,
+            selected: settings.theme === o.key,
+            onSelect: () => {
+              setTheme(o.key);
+              setOpen(null);
+            },
+          }))}
+        />
+        <SelectRow
           icon={Languages}
           label={t("set.language")}
-          hint={t("set.languageHint")}
           hint={t("set.languageHint")}
           value={activeLang.native}
           open={open === "lang"}
