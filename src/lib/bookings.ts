@@ -96,6 +96,19 @@ export function bookingProfit(price: number, list: Expense[] | undefined) {
   return (Number(price) || 0) - expensesTotal(list);
 }
 
+/** Overall completion of a booking: 70% workflow stage + 30% checklist. */
+export function bookingProgress(booking: {
+  stage: Stage;
+  checklist?: ChecklistItem[];
+}): number {
+  const idx = Math.max(0, STAGES.indexOf(booking.stage));
+  const stagePart = idx / (STAGES.length - 1);
+  const list = booking.checklist ?? [];
+  const checkPart = list.length ? list.filter((c) => c.done).length / list.length : stagePart;
+  const value = stagePart * 0.7 + checkPart * 0.3;
+  return Math.round(Math.min(1, Math.max(0, value)) * 100);
+}
+
 function iso(offsetDays: number) {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);

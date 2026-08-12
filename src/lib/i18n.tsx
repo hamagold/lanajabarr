@@ -124,6 +124,9 @@ const en = {
   "booking.maxImages": "You can add up to {max} images per booking.",
   "booking.photo": "photo",
   "booking.photos": "photos",
+  "booking.progress": "Progress",
+  "booking.remaining": "left",
+  "booking.done": "Done",
   "booking.location": "Location",
 
   // expenses
@@ -343,6 +346,9 @@ const ar: Record<TranslationKey, string> = {
   "booking.maxImages": "يمكنك إضافة {max} صور كحد أقصى لكل حجز.",
   "booking.photo": "صورة",
   "booking.photos": "صور",
+  "booking.progress": "التقدّم",
+  "booking.remaining": "متبقٍ",
+  "booking.done": "مكتمل",
   "booking.location": "الموقع",
 
   "exp.title": "المصروفات",
@@ -555,6 +561,9 @@ const sv: Record<TranslationKey, string> = {
   "booking.maxImages": "Du kan lägga till upp till {max} bilder per bokning.",
   "booking.photo": "foto",
   "booking.photos": "foton",
+  "booking.progress": "Framsteg",
+  "booking.remaining": "kvar",
+  "booking.done": "Klart",
   "booking.location": "Plats",
 
   "exp.title": "Utgifter",
