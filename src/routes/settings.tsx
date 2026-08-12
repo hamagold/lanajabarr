@@ -131,6 +131,7 @@ function SettingsPage() {
           onToggle={() => setOpen(open === "theme" ? null : "theme")}
           options={THEME_OPTIONS.map((o) => ({
             key: o.key,
+            lead: o.key === "light" ? "☀" : o.key === "dark" ? "☾" : "◐",
             title: o.title,
             selected: settings.theme === o.key,
             onSelect: () => {
