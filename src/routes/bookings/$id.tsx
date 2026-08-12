@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MapBox } from "@/components/map-box";
 import { BookingLocationPicker } from "@/components/booking-location-picker";
+import { ProgressBar } from "@/components/booking-card";
 import { useBookings } from "@/lib/booking-store";
 import { useLocations } from "@/lib/location-store";
 import {
@@ -15,6 +16,7 @@ import {
   formatDate,
   expensesTotal,
   bookingProfit,
+  bookingProgress,
   type Expense,
   type Booking,
   type PaymentStatus,
@@ -104,6 +106,7 @@ function BookingDetails() {
 
       <section className="surface mt-4 p-4">
         <p className="text-xs text-muted-foreground">Workflow stage</p>
+        <ProgressBar value={bookingProgress(booking)} label="Progress" />
         <div className="mt-3 flex flex-wrap gap-2">
           {STAGES.map((s, i) => (
             <button
