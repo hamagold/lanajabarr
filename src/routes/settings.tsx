@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   Check,
@@ -9,6 +9,7 @@ import {
   HelpCircle,
   ImageIcon,
   Languages,
+  LogOut,
   Monitor,
   Moon,
   RefreshCcw,
@@ -27,6 +28,8 @@ import { CURRENCIES } from "@/lib/currency";
 import { useBookings } from "@/lib/booking-store";
 import { downloadExport, parseImport } from "@/lib/booking-io";
 import { LANGUAGES, useI18n, type TranslationKey } from "@/lib/i18n";
+import { useSession } from "@/lib/use-session";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -50,6 +53,8 @@ function SettingsPage() {
   const { bookings, importBookings } = useBookings();
   const { settings, setName, setLogo, setCurrency, setTheme, reset } = useAppSettings();
   const { t, lang, setLang } = useI18n();
+  const { user } = useSession();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
@@ -308,6 +313,23 @@ function SettingsPage() {
       <p className="mt-6 text-center text-xs text-muted-foreground">
         {t("set.storedLocally")}
       </p>
+
+      <button
+        type="button"
+        onClick={async () => {
+          await supabase.auth.signOut();
+          navigate({ to: "/auth" });
+        }}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-medium text-destructive transition-transform active:scale-[0.98]"
+      >
+        <LogOut className="h-4 w-4" strokeWidth={1.6} />
+        {t("auth.signOut")}
+      </button>
+      {user?.email ? (
+        <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          {t("auth.signedInAs", { email: user.email })}
+        </p>
+      ) : null}
     </AppShell>
   );
 }
