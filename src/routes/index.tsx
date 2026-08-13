@@ -59,7 +59,7 @@ function Welcome() {
 
       <div className="w-full space-y-3">
         <Link
-          to="/dashboard"
+          to="/auth"
           className="block w-full rounded-full bg-white px-6 py-4 text-center text-[15px] font-medium text-[oklch(0.35_0.03_55)] shadow-soft transition-transform active:scale-[0.98]"
         >
           {t("welcome.cta")}
