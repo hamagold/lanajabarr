@@ -1,7 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { CalendarDays, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
+import { useSession } from "@/lib/use-session";
 
 const TABS: { to: string; label: TranslationKey; icon: LucideIcon }[] = [
   { to: "/dashboard", label: "nav.home", icon: Home },
@@ -18,6 +19,13 @@ export function AppShell({
   header?: ReactNode;
 }) {
   const { t } = useI18n();
+  const { user, loading } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth", replace: true });
+  }, [loading, user, navigate]);
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background">
       {header}

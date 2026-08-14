@@ -4,12 +4,16 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "./use-session";
 import { isCurrencyCode, type CurrencyCode } from "./currency";
 
-const KEY = "shootflow.appSettings.v1";
+const LEGACY_KEY = "shootflow.appSettings.v1";
+const cacheKey = (uid: string) => `shootflow.appSettings.${uid}`;
 
 export type AppSettings = {
   name: string;
@@ -57,23 +61,64 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULTS);
   const [ready, setReady] = useState(false);
 
+  const { user, loading } = useSession();
+  const userId = user?.id ?? null;
+  const userRef = useRef<string | null>(null);
+  userRef.current = userId;
+
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      setSettings(normalize(raw ? JSON.parse(raw) : null));
-    } catch {
-      setSettings(DEFAULTS);
+    if (loading) return;
+    let cancelled = false;
+    setReady(false);
+
+    const local = (key: string) => {
+      try {
+        const raw = window.localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    if (!userId) {
+      setSettings(normalize(local(LEGACY_KEY)));
+      setReady(true);
+      return;
     }
-    setReady(true);
-  }, []);
+
+    setSettings(normalize(local(cacheKey(userId)) ?? local(LEGACY_KEY)));
+
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("settings")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data?.settings && Object.keys(data.settings).length > 0) {
+        setSettings(normalize(data.settings));
+      }
+      window.localStorage.removeItem(LEGACY_KEY);
+      setReady(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, loading]);
 
   useEffect(() => {
     if (!ready) return;
+    const uid = userRef.current;
     try {
-      window.localStorage.setItem(KEY, JSON.stringify(settings));
+      window.localStorage.setItem(uid ? cacheKey(uid) : LEGACY_KEY, JSON.stringify(settings));
     } catch {
       /* ignore quota errors */
     }
+    if (!uid) return;
+    void supabase
+      .from("profiles")
+      .upsert({ user_id: uid, settings: settings as never }, { onConflict: "user_id" });
   }, [settings, ready]);
 
   const setName = useCallback((name: string) => {

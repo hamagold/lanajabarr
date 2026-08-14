@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, ExternalLink, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useLocations } from "@/lib/location-store";
+import { fetchPublicShare, recordPublicSelection } from "@/lib/location-store";
+import type { ClientShare, SavedLocation } from "@/lib/locations";
 import { googleMapsUrl, mapEmbedUrl } from "@/lib/locations";
 
 export const Route = createFileRoute("/share/$shareId")({
@@ -25,9 +26,30 @@ export const Route = createFileRoute("/share/$shareId")({
 
 function ClientSharePage() {
   const { shareId } = Route.useParams();
-  const { getShare, locations, recordSelection, ready } = useLocations();
-  const share = getShare(shareId);
+  const [share, setShare] = useState<ClientShare | null>(null);
+  const [locations, setLocations] = useState<SavedLocation[]>([]);
+  const [ready, setReady] = useState(false);
   const [comment, setComment] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchPublicShare(shareId).then((res) => {
+      if (cancelled) return;
+      if (res) {
+        setShare(res.share);
+        setLocations(res.locations);
+      }
+      setReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [shareId]);
+
+  const recordSelection = async (id: string, locationId: string, note: string) => {
+    const next = await recordPublicSelection(id, locationId, note);
+    if (next) setShare(next);
+  };
 
   if (!ready) return null;
 
@@ -35,7 +57,7 @@ function ClientSharePage() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-md items-center justify-center px-5 text-center">
         <p className="text-sm text-muted-foreground">
-          This location page isn't available on this device.
+          This location page is no longer available.
         </p>
       </div>
     );
@@ -115,7 +137,7 @@ function ClientSharePage() {
               </a>
               <button
                 type="button"
-                onClick={() => recordSelection(share.id, l.id, comment)}
+                onClick={() => void recordSelection(share.id, l.id, comment)}
                 className={`flex w-full items-center justify-center gap-2 border-t border-border py-3.5 text-sm font-medium ${
                   chosen ? "bg-primary text-primary-foreground" : ""
                 }`}
@@ -140,7 +162,7 @@ function ClientSharePage() {
         {share.selectedLocationId ? (
           <button
             type="button"
-            onClick={() => recordSelection(share.id, share.selectedLocationId!, comment)}
+            onClick={() => void recordSelection(share.id, share.selectedLocationId!, comment)}
             className="mt-3 w-full rounded-full border border-border bg-card py-2.5 text-xs font-medium"
           >
             Send note to photographer

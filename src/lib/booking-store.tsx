@@ -4,12 +4,19 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "./use-session";
 import { type Booking, seedBookings } from "./bookings";
 
-const KEY = "shootflow.bookings.v1";
+const LEGACY_KEY = "shootflow.bookings.v1";
+
+function cacheKey(userId: string) {
+  return `shootflow.bookings.${userId}`;
+}
 
 function normalize(list: Booking[]): Booking[] {
   return (Array.isArray(list) ? list : []).map((b) => ({
@@ -33,61 +40,142 @@ type Ctx = {
 const BookingContext = createContext<Ctx | null>(null);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
+  const { user, loading } = useSession();
+  const userId = user?.id ?? null;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [ready, setReady] = useState(false);
+  const userRef = useRef<string | null>(null);
+  userRef.current = userId;
 
+  // Load this account's bookings from the cloud (with a local cache for speed).
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(KEY);
-      setBookings(normalize(raw ? (JSON.parse(raw) as Booking[]) : seedBookings()));
-    } catch {
-      setBookings(normalize(seedBookings()));
+    if (loading) return;
+    let cancelled = false;
+    setReady(false);
+    if (!userId) {
+      setBookings([]);
+      setReady(true);
+      return;
     }
-    setReady(true);
-  }, []);
 
-  useEffect(() => {
-    if (!ready) return;
     try {
-      window.localStorage.setItem(KEY, JSON.stringify(bookings));
+      const cached = window.localStorage.getItem(cacheKey(userId));
+      if (cached) setBookings(normalize(JSON.parse(cached) as Booking[]));
+      else setBookings([]);
+    } catch {
+      setBookings([]);
+    }
+
+    (async () => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("id, data")
+        .eq("user_id", userId);
+      if (cancelled || error) {
+        if (error) console.error(error);
+        setReady(true);
+        return;
+      }
+
+      let rows = normalize((data ?? []).map((r) => r.data as unknown as Booking));
+
+      if (rows.length === 0) {
+        // First run for this account: migrate anything left on this device, else seed.
+        let legacy: Booking[] = [];
+        try {
+          const raw = window.localStorage.getItem(LEGACY_KEY);
+          if (raw) legacy = normalize(JSON.parse(raw) as Booking[]);
+        } catch {
+          legacy = [];
+        }
+        rows = legacy.length > 0 ? legacy : normalize(seedBookings());
+        window.localStorage.removeItem(LEGACY_KEY);
+        await supabase
+          .from("bookings")
+          .upsert(rows.map((b) => ({ id: b.id, user_id: userId, data: b as never })));
+      }
+
+      if (cancelled) return;
+      setBookings(rows);
+      setReady(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, loading]);
+
+  // Keep a per-account offline cache.
+  useEffect(() => {
+    if (!ready || !userId) return;
+    try {
+      window.localStorage.setItem(cacheKey(userId), JSON.stringify(bookings));
     } catch {
       /* ignore quota errors */
     }
-  }, [bookings, ready]);
+  }, [bookings, ready, userId]);
 
-  const getBooking = useCallback(
-    (id: string) => bookings.find((b) => b.id === id),
-    [bookings],
+  const persist = useCallback(async (rows: Booking[]) => {
+    const uid = userRef.current;
+    if (!uid || rows.length === 0) return;
+    const { error } = await supabase
+      .from("bookings")
+      .upsert(rows.map((b) => ({ id: b.id, user_id: uid, data: b as never })));
+    if (error) console.error(error);
+  }, []);
+
+  const getBooking = useCallback((id: string) => bookings.find((b) => b.id === id), [bookings]);
+
+  const addBooking = useCallback(
+    (b: Booking) => {
+      setBookings((p) => [b, ...p]);
+      void persist([b]);
+    },
+    [persist],
   );
-  const addBooking = useCallback((b: Booking) => setBookings((p) => [b, ...p]), []);
+
   const updateBooking = useCallback(
     (id: string, patch: Partial<Booking>) =>
-      setBookings((p) => p.map((b) => (b.id === id ? { ...b, ...patch } : b))),
-    [],
+      setBookings((p) => {
+        const next = p.map((b) => (b.id === id ? { ...b, ...patch } : b));
+        const changed = next.find((b) => b.id === id);
+        if (changed) void persist([changed]);
+        return next;
+      }),
+    [persist],
   );
-  const removeBooking = useCallback(
-    (id: string) => setBookings((p) => p.filter((b) => b.id !== id)),
-    [],
-  );
+
+  const removeBooking = useCallback((id: string) => {
+    setBookings((p) => p.filter((b) => b.id !== id));
+    const uid = userRef.current;
+    if (uid) {
+      void supabase.from("bookings").delete().eq("id", id).eq("user_id", uid);
+    }
+  }, []);
 
   const importBookings = useCallback(
     (incoming: Booking[], mode: "merge" | "replace") => {
+      const rows = normalize(incoming);
       if (mode === "replace") {
-        setBookings(normalize(incoming));
-        return incoming.length;
+        setBookings(rows);
+        const uid = userRef.current;
+        if (uid) {
+          void (async () => {
+            await supabase.from("bookings").delete().eq("user_id", uid);
+            await persist(rows);
+          })();
+        }
+        return rows.length;
       }
-      let added = 0;
       setBookings((prev) => {
         const byId = new Map(prev.map((b) => [b.id, b]));
-        for (const b of normalize(incoming)) {
-          if (!byId.has(b.id)) added += 1;
-          byId.set(b.id, b);
-        }
+        for (const b of rows) byId.set(b.id, b);
         return Array.from(byId.values());
       });
-      return incoming.length;
+      void persist(rows);
+      return rows.length;
     },
-    [],
+    [persist],
   );
 
   const value = useMemo(
