@@ -115,7 +115,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_share: {
+        Args: { p_id: string }
+        Returns: {
+          data: Json
+          id: string
+          locations: Json
+        }[]
+      }
+      respond_to_share: {
+        Args: { p_comment: string; p_id: string; p_location_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
