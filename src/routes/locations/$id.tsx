@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/require-auth";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ChevronLeft,
@@ -35,7 +36,11 @@ export const Route = createFileRoute("/locations/$id")({
       { property: "og:description", content: "Photos, map and notes for a saved location." },
     ],
   }),
-  component: LocationDetail,
+  component: () => (
+    <RequireAuth>
+      <LocationDetail />
+    </RequireAuth>
+  ),
 });
 
 function readFile(file: File) {

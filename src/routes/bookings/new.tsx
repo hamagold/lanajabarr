@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/require-auth";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CalendarDays, ChevronLeft } from "lucide-react";
 import { useState } from "react";
@@ -30,7 +31,11 @@ export const Route = createFileRoute("/bookings/new")({
       { property: "og:description", content: "Create a new photography booking." },
     ],
   }),
-  component: NewBooking,
+  component: () => (
+    <RequireAuth>
+      <NewBooking />
+    </RequireAuth>
+  ),
 });
 
 function NewBooking() {

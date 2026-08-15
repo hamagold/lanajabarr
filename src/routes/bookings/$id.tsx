@@ -36,7 +36,11 @@ export const Route = createFileRoute("/bookings/$id")({
       { property: "og:description", content: "Everything about this photography session." },
     ],
   }),
-  component: BookingDetails,
+  component: () => (
+    <RequireAuth>
+      <BookingDetails />
+    </RequireAuth>
+  ),
 });
 
 function BookingDetails() {

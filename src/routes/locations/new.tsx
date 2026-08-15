@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/require-auth";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ImagePlus, Loader2, Search, X } from "lucide-react";
 import { useState } from "react";
@@ -19,7 +20,11 @@ export const Route = createFileRoute("/locations/new")({
       { property: "og:description", content: "Save a new photoshoot location." },
     ],
   }),
-  component: NewLocation,
+  component: () => (
+    <RequireAuth>
+      <NewLocation />
+    </RequireAuth>
+  ),
 });
 
 function readFile(file: File) {
