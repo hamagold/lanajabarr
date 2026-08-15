@@ -66,7 +66,7 @@ function AuthPage() {
         const { error: err } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
-          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (err) throw err;
         setInfo(t("auth.checkEmail"));
