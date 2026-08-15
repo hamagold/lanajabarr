@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "./use-session";
 import { type ClientShare, type SavedLocation } from "./locations";
+import { getPublicShareFn, respondToShareFn } from "./shares.functions";
 
 const locCache = (uid: string) => `shootflow.locations.${uid}`;
 const shareCache = (uid: string) => `shootflow.locationShares.${uid}`;
@@ -52,9 +53,8 @@ function readCache<T>(key: string, fallback: T): T {
 export async function fetchPublicShare(
   shareId: string,
 ): Promise<{ share: ClientShare; locations: SavedLocation[] } | null> {
-  const { data, error } = await supabase.rpc("get_public_share", { p_id: shareId });
-  const row = Array.isArray(data) ? data[0] : null;
-  if (error || !row) return null;
+  const row = await getPublicShareFn({ data: { shareId } }).catch(() => null);
+  if (!row) return null;
   return {
     share: row.data as unknown as ClientShare,
     locations: normalize((row.locations ?? []) as unknown as SavedLocation[]),
@@ -66,12 +66,10 @@ export async function recordPublicSelection(
   locationId: string,
   comment: string,
 ): Promise<ClientShare | null> {
-  const { data, error } = await supabase.rpc("respond_to_share", {
-    p_id: shareId,
-    p_location_id: locationId,
-    p_comment: comment,
-  });
-  if (error || !data) return null;
+  const data = await respondToShareFn({
+    data: { shareId, locationId, comment },
+  }).catch(() => null);
+  if (!data) return null;
   return data as unknown as ClientShare;
 }
 
