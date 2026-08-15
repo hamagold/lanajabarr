@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/require-auth";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Mail, Phone, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -36,7 +37,11 @@ export const Route = createFileRoute("/bookings/$id")({
       { property: "og:description", content: "Everything about this photography session." },
     ],
   }),
-  component: BookingDetails,
+  component: () => (
+    <RequireAuth>
+      <BookingDetails />
+    </RequireAuth>
+  ),
 });
 
 function BookingDetails() {

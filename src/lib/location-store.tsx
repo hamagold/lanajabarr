@@ -55,15 +55,12 @@ function readCache<T>(key: string, fallback: T): T {
 export async function fetchPublicShare(
   shareId: string,
 ): Promise<{ share: ClientShare; locations: SavedLocation[] } | null> {
-  const { data, error } = await supabase
-    .from("location_shares")
-    .select("data, locations")
-    .eq("id", shareId)
-    .maybeSingle();
-  if (error || !data) return null;
+  const { data, error } = await supabase.rpc("get_public_share", { p_id: shareId });
+  const row = Array.isArray(data) ? data[0] : null;
+  if (error || !row) return null;
   return {
-    share: data.data as unknown as ClientShare,
-    locations: normalize((data.locations ?? []) as unknown as SavedLocation[]),
+    share: row.data as unknown as ClientShare,
+    locations: normalize((row.locations ?? []) as unknown as SavedLocation[]),
   };
 }
 
@@ -72,19 +69,13 @@ export async function recordPublicSelection(
   locationId: string,
   comment: string,
 ): Promise<ClientShare | null> {
-  const current = await fetchPublicShare(shareId);
-  if (!current) return null;
-  const next: ClientShare = {
-    ...current.share,
-    selectedLocationId: locationId,
-    selectedAt: new Date().toISOString(),
-    clientComment: comment,
-  };
-  await supabase
-    .from("location_shares")
-    .update({ data: next as never })
-    .eq("id", shareId);
-  return next;
+  const { data, error } = await supabase.rpc("respond_to_share", {
+    p_id: shareId,
+    p_location_id: locationId,
+    p_comment: comment,
+  });
+  if (error || !data) return null;
+  return data as unknown as ClientShare;
 }
 
 export function LocationProvider({ children }: { children: ReactNode }) {

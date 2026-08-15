@@ -1,3 +1,4 @@
+import { RequireAuth } from "@/components/require-auth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, ChevronLeft, Copy, Mail } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -23,7 +24,11 @@ export const Route = createFileRoute("/locations/share")({
       { property: "og:description", content: "Let your client choose their favourite spot." },
     ],
   }),
-  component: ShareLocations,
+  component: () => (
+    <RequireAuth>
+      <ShareLocations />
+    </RequireAuth>
+  ),
 });
 
 function ShareLocations() {
