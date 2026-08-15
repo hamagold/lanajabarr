@@ -10,9 +10,7 @@ import {
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "./use-session";
-import { type Booking, seedBookings } from "./bookings";
-
-const LEGACY_KEY = "shootflow.bookings.v1";
+import { type Booking } from "./bookings";
 
 function cacheKey(userId: string) {
   return `shootflow.bookings.${userId}`;
@@ -44,14 +42,16 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const userId = user?.id ?? null;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [ready, setReady] = useState(false);
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
   const userRef = useRef<string | null>(null);
-  userRef.current = userId;
+  userRef.current = loadedUserId === userId ? userId : null;
 
   // Load this account's bookings from the cloud (with a local cache for speed).
   useEffect(() => {
     if (loading) return;
     let cancelled = false;
     setReady(false);
+    setLoadedUserId(null);
     if (!userId) {
       setBookings([]);
       setReady(true);
@@ -77,26 +77,11 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      let rows = normalize((data ?? []).map((r) => r.data as unknown as Booking));
-
-      if (rows.length === 0) {
-        // First run for this account: migrate anything left on this device, else seed.
-        let legacy: Booking[] = [];
-        try {
-          const raw = window.localStorage.getItem(LEGACY_KEY);
-          if (raw) legacy = normalize(JSON.parse(raw) as Booking[]);
-        } catch {
-          legacy = [];
-        }
-        rows = legacy.length > 0 ? legacy : normalize(seedBookings());
-        window.localStorage.removeItem(LEGACY_KEY);
-        await supabase
-          .from("bookings")
-          .upsert(rows.map((b) => ({ id: b.id, user_id: userId, data: b as never })));
-      }
+      const rows = normalize((data ?? []).map((r) => r.data as unknown as Booking));
 
       if (cancelled) return;
       setBookings(rows);
+      setLoadedUserId(userId);
       setReady(true);
     })();
 
@@ -107,13 +92,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
   // Keep a per-account offline cache.
   useEffect(() => {
-    if (!ready || !userId) return;
+    if (!ready || !userId || loadedUserId !== userId) return;
     try {
       window.localStorage.setItem(cacheKey(userId), JSON.stringify(bookings));
     } catch {
       /* ignore quota errors */
     }
-  }, [bookings, ready, userId]);
+  }, [bookings, ready, userId, loadedUserId]);
 
   const persist = useCallback(async (rows: Booking[]) => {
     const uid = userRef.current;
@@ -180,15 +165,15 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      bookings,
-      ready,
+      bookings: loadedUserId === userId ? bookings : [],
+      ready: ready && (!userId || loadedUserId === userId),
       getBooking,
       addBooking,
       updateBooking,
       removeBooking,
       importBookings,
     }),
-    [bookings, ready, getBooking, addBooking, updateBooking, removeBooking, importBookings],
+    [bookings, ready, userId, loadedUserId, getBooking, addBooking, updateBooking, removeBooking, importBookings],
   );
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

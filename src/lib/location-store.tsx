@@ -10,10 +10,7 @@ import {
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "./use-session";
-import { seedLocations, type ClientShare, type SavedLocation } from "./locations";
-
-const LEGACY_LOC_KEY = "shootflow.locations.v1";
-const LEGACY_SHARE_KEY = "shootflow.locationShares.v1";
+import { type ClientShare, type SavedLocation } from "./locations";
 
 const locCache = (uid: string) => `shootflow.locations.${uid}`;
 const shareCache = (uid: string) => `shootflow.locationShares.${uid}`;
@@ -84,15 +81,17 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [shares, setShares] = useState<ClientShare[]>([]);
   const [ready, setReady] = useState(false);
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
   const userRef = useRef<string | null>(null);
   const locRef = useRef<SavedLocation[]>([]);
-  userRef.current = userId;
+  userRef.current = loadedUserId === userId ? userId : null;
   locRef.current = locations;
 
   useEffect(() => {
     if (loading) return;
     let cancelled = false;
     setReady(false);
+    setLoadedUserId(null);
     if (!userId) {
       setLocations([]);
       setShares([]);
@@ -112,24 +111,14 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       if (locRes.error) console.error(locRes.error);
       if (shareRes.error) console.error(shareRes.error);
 
-      let locRows = normalize(
+      const locRows = normalize(
         (locRes.data ?? []).map((r) => r.data as unknown as SavedLocation),
       );
-      if (locRows.length === 0) {
-        let legacy: SavedLocation[] = normalize(
-          readCache<SavedLocation[]>(LEGACY_LOC_KEY, []),
-        );
-        locRows = legacy.length > 0 ? legacy : normalize(seedLocations());
-        window.localStorage.removeItem(LEGACY_LOC_KEY);
-        window.localStorage.removeItem(LEGACY_SHARE_KEY);
-        await supabase
-          .from("locations")
-          .upsert(locRows.map((l) => ({ id: l.id, user_id: userId, data: l as never })));
-      }
 
       if (cancelled) return;
       setLocations(locRows);
       setShares((shareRes.data ?? []).map((r) => r.data as unknown as ClientShare));
+      setLoadedUserId(userId);
       setReady(true);
     })();
 
@@ -139,14 +128,14 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   }, [userId, loading]);
 
   useEffect(() => {
-    if (!ready || !userId) return;
+    if (!ready || !userId || loadedUserId !== userId) return;
     try {
       window.localStorage.setItem(locCache(userId), JSON.stringify(locations));
       window.localStorage.setItem(shareCache(userId), JSON.stringify(shares));
     } catch {
       /* ignore quota errors */
     }
-  }, [locations, shares, ready, userId]);
+  }, [locations, shares, ready, userId, loadedUserId]);
 
   const persistLocations = useCallback(async (rows: SavedLocation[]) => {
     const uid = userRef.current;
@@ -235,9 +224,9 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      locations,
-      shares,
-      ready,
+      locations: loadedUserId === userId ? locations : [],
+      shares: loadedUserId === userId ? shares : [],
+      ready: ready && (!userId || loadedUserId === userId),
       getLocation,
       addLocation,
       updateLocation,
@@ -251,6 +240,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       locations,
       shares,
       ready,
+      userId,
+      loadedUserId,
       getLocation,
       addLocation,
       updateLocation,
