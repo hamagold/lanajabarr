@@ -26,6 +26,8 @@ export function AppShell({
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
+  if (loading || !user) return null;
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background">
       {header}
