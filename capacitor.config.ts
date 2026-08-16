@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "app.lovable.2ce5387096604ac892359166976642c5",
+  appId: "app.lovable.shootflow",
   appName: "Shootflow",
   webDir: "dist/client",
   server: {
