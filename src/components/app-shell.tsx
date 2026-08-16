@@ -29,10 +29,10 @@ export function AppShell({
   if (loading || !user) return null;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
       {header}
       <main className="flex-1 px-5 pb-28">{children}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md items-center justify-around border-t border-border bg-card/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md items-center justify-around border-t border-border bg-card/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:max-w-2xl">
         {TABS.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
