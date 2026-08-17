@@ -1,6 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CalendarDays, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { CalendarDays, Clock, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { getAccountStatusFn } from "@/lib/admin.functions";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { useSession } from "@/lib/use-session";
 
@@ -21,12 +25,20 @@ export function AppShell({
   const { t } = useI18n();
   const { user, loading } = useSession();
   const navigate = useNavigate();
+  const getStatus = useServerFn(getAccountStatusFn);
+  const statusQuery = useQuery({
+    queryKey: ["account-status", user?.id],
+    queryFn: () => getStatus({}),
+    enabled: Boolean(user),
+  });
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
   if (loading || !user) return null;
+  if (statusQuery.isLoading) return null;
+  if (statusQuery.data && !statusQuery.data.isActive) return <PendingApproval />;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
@@ -50,6 +62,46 @@ export function AppShell({
 }
 
 export function PageHeader({
+  title,
+  subtitle,
+  right,
+}: {
+  title: string;
+  subtitle?: string;
+  right?: ReactNode;
+}) {
+  return (
+    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-8 pb-5">
+      <div className="min-w-0">
+        <h1 className="truncate text-[27px] leading-tight">{title}</h1>
+        {subtitle ? (
+          <p className="mt-1 truncate text-sm text-muted-foreground">{subtitle}</p>
+        ) : null}
+      </div>
+      {right}
+    </header>
+  );
+}
+
+function PendingApproval() {
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
+      <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
+      <h1 className="text-2xl leading-tight">Account awaiting approval</h1>
+      <p className="text-sm text-muted-foreground">
+        هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە.
+      </p>
+      <button
+        onClick={() => supabase.auth.signOut()}
+        className="mt-2 rounded-full border border-border px-5 py-2.5 text-sm"
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}
+
+function LegacyPageHeader({
   title,
   subtitle,
   right,
