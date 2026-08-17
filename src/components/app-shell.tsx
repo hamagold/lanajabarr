@@ -1,6 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CalendarDays, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { CalendarDays, Clock, Home, MapPin, Settings, type LucideIcon } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { getAccountStatusFn } from "@/lib/admin.functions";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
 import { useSession } from "@/lib/use-session";
 
@@ -21,12 +25,20 @@ export function AppShell({
   const { t } = useI18n();
   const { user, loading } = useSession();
   const navigate = useNavigate();
+  const getStatus = useServerFn(getAccountStatusFn);
+  const statusQuery = useQuery({
+    queryKey: ["account-status", user?.id],
+    queryFn: () => getStatus({}),
+    enabled: Boolean(user),
+  });
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
   if (loading || !user) return null;
+  if (statusQuery.isLoading) return null;
+  if (statusQuery.data && !statusQuery.data.isActive) return <PendingApproval />;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
