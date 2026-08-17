@@ -82,3 +82,43 @@ export function PageHeader({
     </header>
   );
 }
+
+function PendingApproval() {
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
+      <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
+      <h1 className="text-2xl leading-tight">Account awaiting approval</h1>
+      <p className="text-sm text-muted-foreground">
+        هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە.
+      </p>
+      <button
+        onClick={() => supabase.auth.signOut()}
+        className="mt-2 rounded-full border border-border px-5 py-2.5 text-sm"
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}
+
+function LegacyPageHeader({
+  title,
+  subtitle,
+  right,
+}: {
+  title: string;
+  subtitle?: string;
+  right?: ReactNode;
+}) {
+  return (
+    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-8 pb-5">
+      <div className="min-w-0">
+        <h1 className="truncate text-[27px] leading-tight">{title}</h1>
+        {subtitle ? (
+          <p className="mt-1 truncate text-sm text-muted-foreground">{subtitle}</p>
+        ) : null}
+      </div>
+      {right}
+    </header>
+  );
+}
