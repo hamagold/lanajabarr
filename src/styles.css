@@ -196,3 +196,9 @@
 @utility text-shadow-soft {
   text-shadow: 0 2px 8px oklch(0.3 0.03 60 / 0.25);
 }
+
+/* Hide Lovable badge */
+#lovable-badge, 
+.lovable-badge {
+  display: none !important;
+}
