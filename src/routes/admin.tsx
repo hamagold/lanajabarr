@@ -69,9 +69,7 @@ function AdminLogin() {
       <div className="text-center">
         <ShieldCheck className="mx-auto h-8 w-8 text-primary" strokeWidth={1.6} />
         <h1 className="mt-3 text-2xl">Admin panel</h1>
-        <p className="mt-1 text-sm text-muted-foreground whitespace-pre-line">
-          {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n\nچوونەژوورەوە بۆ چاوەڕوانی ئەکاونت: چاوەڕوانەوە بۆ ئەکاونتی نوێ بە ئەکاونتەکانی ئەدمین و بەشەکانی پەنال ئەدمینەوە."}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">Sign in with your admin account.</p>
       </div>
       <form onSubmit={onSubmit} className="mt-8 space-y-3">
         <Input

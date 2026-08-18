@@ -87,9 +87,7 @@ function PendingApproval() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
       <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
-      <h1 className="text-2xl leading-tight">
-        {"'''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''\n\nچوونەژوورەوە بۆ چاوەڕوانی ئەکاونت: چاوەڕوانەوە بۆ ئەکاونتی نوێ بە ئەکاونتەکانی ئەدمین و بەشەکانی پەنال ئەدمینەوە."}
-      </h1>
+      <h1 className="text-2xl leading-tight">Account awaiting approval</h1>
       <p className="text-sm text-muted-foreground">
         هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە.
       </p>
