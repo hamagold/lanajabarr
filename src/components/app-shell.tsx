@@ -38,7 +38,8 @@ export function AppShell({
 
   if (loading || !user) return null;
   if (statusQuery.isLoading) return null;
-  if (statusQuery.data && !statusQuery.data.isActive) return <PendingApproval />;
+  if (statusQuery.data && !statusQuery.data.isActive)
+    return <PendingApproval expired={Boolean(statusQuery.data.expired)} />;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
@@ -83,13 +84,17 @@ export function PageHeader({
   );
 }
 
-function PendingApproval() {
+function PendingApproval({ expired }: { expired?: boolean }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
       <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
-      <h1 className="text-2xl leading-tight">Account awaiting approval</h1>
+      <h1 className="text-2xl leading-tight">
+        {expired ? "Subscription expired" : "Account awaiting approval"}
+      </h1>
       <p className="text-sm text-muted-foreground">
-        هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە.
+        {expired
+          ? "ماوەی بەشداریکردنەکەت تەواو بووە. تکایە پەیوەندی بە ئەدمینەوە بکە بۆ نوێکردنەوە."
+          : "هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە."}
       </p>
       <button
         onClick={() => supabase.auth.signOut()}
