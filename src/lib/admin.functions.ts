@@ -22,7 +22,11 @@ export const getAccountStatusFn = createServerFn({ method: "GET" })
     const userId = context.userId;
 
     const [{ data: status }, { data: role }] = await Promise.all([
-      supabaseAdmin.from("user_status").select("is_active").eq("user_id", userId).maybeSingle(),
+      supabaseAdmin
+        .from("user_status")
+        .select("is_active, expires_at")
+        .eq("user_id", userId)
+        .maybeSingle(),
       supabaseAdmin
         .from("user_roles")
         .select("role")
@@ -35,9 +39,14 @@ export const getAccountStatusFn = createServerFn({ method: "GET" })
       await supabaseAdmin.from("user_status").insert({ user_id: userId, is_active: false });
     }
 
+    const expiresAt = (status as { expires_at?: string | null } | null)?.expires_at ?? null;
+    const expired = Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now());
+
     return {
-      isActive: Boolean(status?.is_active) || Boolean(role),
+      isActive: Boolean(role) || (Boolean(status?.is_active) && !expired),
       isAdmin: Boolean(role),
+      expiresAt,
+      expired,
     };
   });
 
@@ -50,36 +59,65 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
     if (error) throw new Error("Could not load users");
 
     const [{ data: statuses }, { data: roles }] = await Promise.all([
-      admin.from("user_status").select("user_id, is_active"),
+      admin.from("user_status").select("user_id, is_active, expires_at"),
       admin.from("user_roles").select("user_id, role"),
     ]);
 
-    const activeMap = new Map((statuses ?? []).map((s) => [s.user_id, s.is_active]));
+    const statusMap = new Map(
+      (statuses ?? []).map((s) => [
+        s.user_id,
+        s as { is_active: boolean; expires_at: string | null },
+      ]),
+    );
     const adminSet = new Set(
       (roles ?? []).filter((r) => r.role === "admin").map((r) => r.user_id),
     );
 
-    return list.users.map((u) => ({
-      id: u.id,
-      email: u.email ?? "",
-      createdAt: u.created_at,
-      lastSignInAt: u.last_sign_in_at ?? null,
-      isActive: adminSet.has(u.id) ? true : Boolean(activeMap.get(u.id)),
-      isAdmin: adminSet.has(u.id),
-    }));
+    return list.users.map((u) => {
+      const s = statusMap.get(u.id);
+      const expiresAt = s?.expires_at ?? null;
+      const expired = Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now());
+      const isAdmin = adminSet.has(u.id);
+      return {
+        id: u.id,
+        email: u.email ?? "",
+        createdAt: u.created_at,
+        lastSignInAt: u.last_sign_in_at ?? null,
+        isActive: isAdmin ? true : Boolean(s?.is_active) && !expired,
+        isAdmin,
+        expiresAt,
+        expired,
+      };
+    });
   });
 
-const setActiveSchema = z.object({ userId: z.string().uuid(), isActive: z.boolean() });
+const setActiveSchema = z.object({
+  userId: z.string().uuid(),
+  isActive: z.boolean(),
+  /** Subscription length in months; 0 or omitted = no end date. */
+  months: z.number().int().min(0).max(120).optional(),
+});
 
 export const adminSetUserActiveFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => setActiveSchema.parse(data))
   .handler(async ({ context, data }) => {
     const admin = await assertAdmin(context.userId);
+    let expiresAt: string | null = null;
+    if (data.isActive && data.months && data.months > 0) {
+      const d = new Date();
+      d.setMonth(d.getMonth() + data.months);
+      expiresAt = d.toISOString();
+    }
     const { error } = await admin
       .from("user_status")
       .upsert(
-        { user_id: data.userId, is_active: data.isActive, updated_at: new Date().toISOString() },
+        {
+          user_id: data.userId,
+          is_active: data.isActive,
+          expires_at: expiresAt,
+          updated_at: new Date().toISOString(),
+        },
         { onConflict: "user_id" },
       );
     if (error) throw new Error("Could not update account");

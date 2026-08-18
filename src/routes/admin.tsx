@@ -32,6 +32,17 @@ const credentials = z.object({
   password: z.string().min(6).max(72),
 });
 
+const PLANS = [
+  { label: "1 month", months: 1 },
+  { label: "3 months", months: 3 },
+  { label: "6 months", months: 6 },
+  { label: "1 year", months: 12 },
+] as const;
+
+function daysLeft(iso: string) {
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000));
+}
+
 function AdminPage() {
   const { user, loading } = useSession();
   if (loading) {
@@ -113,7 +124,8 @@ function AdminConsole() {
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "users"] });
   const activeMutation = useMutation({
-    mutationFn: (v: { userId: string; isActive: boolean }) => setActive({ data: v }),
+    mutationFn: (v: { userId: string; isActive: boolean; months?: number }) =>
+      setActive({ data: v }),
     onSuccess: invalidate,
   });
   const roleMutation = useMutation({
@@ -182,6 +194,21 @@ function AdminConsole() {
                     ? ` · Last sign in ${new Date(u.lastSignInAt).toLocaleDateString()}`
                     : ""}
                 </p>
+                {u.expiresAt ? (
+                  <p
+                    className={`mt-0.5 text-[11px] ${
+                      u.expired ? "text-destructive" : "text-muted-foreground"
+                    }`}
+                  >
+                    {u.expired
+                      ? `Subscription ended ${new Date(u.expiresAt).toLocaleDateString()}`
+                      : `${daysLeft(u.expiresAt)} days left · until ${new Date(
+                          u.expiresAt,
+                        ).toLocaleDateString()}`}
+                  </p>
+                ) : u.isActive && !u.isAdmin ? (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">No end date</p>
+                ) : null}
               </div>
               <span
                 className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] ${
@@ -190,9 +217,33 @@ function AdminConsole() {
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                {u.isActive ? "Active" : "Pending"}
+                {u.isActive ? "Active" : u.expired ? "Expired" : "Pending"}
               </span>
             </div>
+
+            {!u.isAdmin ? (
+              <div className="mt-3">
+                <p className="text-[11px] text-muted-foreground">Activate for</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {PLANS.map((p) => (
+                    <button
+                      key={p.label}
+                      onClick={() =>
+                        activeMutation.mutate({
+                          userId: u.id,
+                          isActive: true,
+                          months: p.months,
+                        })
+                      }
+                      disabled={activeMutation.isPending}
+                      className="rounded-full border border-border bg-secondary px-3 py-1.5 text-[11px] font-medium disabled:opacity-50"
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-3 flex flex-wrap gap-2">
               <button
@@ -202,7 +253,7 @@ function AdminConsole() {
                 disabled={u.isAdmin || activeMutation.isPending}
                 className="rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground disabled:opacity-50"
               >
-                {u.isActive ? "Deactivate" : "Activate"}
+                {u.isActive ? "Deactivate" : "Activate (no limit)"}
               </button>
               <button
                 onClick={() => roleMutation.mutate({ userId: u.id, isAdmin: !u.isAdmin })}
