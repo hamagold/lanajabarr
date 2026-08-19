@@ -24,7 +24,7 @@ export const getAccountStatusFn = createServerFn({ method: "GET" })
     const [{ data: status }, { data: role }] = await Promise.all([
       supabaseAdmin
         .from("user_status")
-        .select("is_active, expires_at")
+        .select("is_active, expires_at, is_banned, is_lifetime")
         .eq("user_id", userId)
         .maybeSingle(),
       supabaseAdmin
@@ -39,12 +39,18 @@ export const getAccountStatusFn = createServerFn({ method: "GET" })
       await supabaseAdmin.from("user_status").insert({ user_id: userId, is_active: false });
     }
 
-    const expiresAt = (status as { expires_at?: string | null } | null)?.expires_at ?? null;
+    const s = status as
+      | { expires_at?: string | null; is_lifetime?: boolean; is_banned?: boolean }
+      | null;
+    const expiresAt = s?.is_lifetime ? null : (s?.expires_at ?? null);
     const expired = Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now());
+    const banned = Boolean(s?.is_banned);
 
     return {
-      isActive: Boolean(role) || (Boolean(status?.is_active) && !expired),
+      isActive: !banned && (Boolean(role) || (Boolean(status?.is_active) && !expired)),
       isAdmin: Boolean(role),
+      banned,
+      lifetime: Boolean(s?.is_lifetime),
       expiresAt,
       expired,
     };
