@@ -65,14 +65,27 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
     if (error) throw new Error("Could not load users");
 
     const [{ data: statuses }, { data: roles }] = await Promise.all([
-      admin.from("user_status").select("user_id, is_active, expires_at"),
+      admin
+        .from("user_status")
+        .select(
+          "user_id, is_active, expires_at, is_banned, is_lifetime, is_paid, paid_amount, paid_note, paid_at",
+        ),
       admin.from("user_roles").select("user_id, role"),
     ]);
 
     const statusMap = new Map(
       (statuses ?? []).map((s) => [
         s.user_id,
-        s as { is_active: boolean; expires_at: string | null },
+        s as {
+          is_active: boolean;
+          expires_at: string | null;
+          is_banned: boolean;
+          is_lifetime: boolean;
+          is_paid: boolean;
+          paid_amount: number | null;
+          paid_note: string | null;
+          paid_at: string | null;
+        },
       ]),
     );
     const adminSet = new Set(
@@ -81,7 +94,9 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
 
     return list.users.map((u) => {
       const s = statusMap.get(u.id);
-      const expiresAt = s?.expires_at ?? null;
+      const lifetime = Boolean(s?.is_lifetime);
+      const banned = Boolean(s?.is_banned);
+      const expiresAt = lifetime ? null : (s?.expires_at ?? null);
       const expired = Boolean(expiresAt && new Date(expiresAt).getTime() < Date.now());
       const isAdmin = adminSet.has(u.id);
       return {
@@ -89,8 +104,14 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
         email: u.email ?? "",
         createdAt: u.created_at,
         lastSignInAt: u.last_sign_in_at ?? null,
-        isActive: isAdmin ? true : Boolean(s?.is_active) && !expired,
+        isActive: banned ? false : isAdmin ? true : Boolean(s?.is_active) && !expired,
         isAdmin,
+        banned,
+        lifetime,
+        isPaid: Boolean(s?.is_paid),
+        paidAmount: s?.paid_amount ?? null,
+        paidNote: s?.paid_note ?? null,
+        paidAt: s?.paid_at ?? null,
         expiresAt,
         expired,
       };
@@ -102,6 +123,7 @@ const setActiveSchema = z.object({
   isActive: z.boolean(),
   /** Subscription length in months; 0 or omitted = no end date. */
   months: z.number().int().min(0).max(120).optional(),
+  lifetime: z.boolean().optional(),
 });
 
 export const adminSetUserActiveFn = createServerFn({ method: "POST" })
@@ -110,7 +132,7 @@ export const adminSetUserActiveFn = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const admin = await assertAdmin(context.userId);
     let expiresAt: string | null = null;
-    if (data.isActive && data.months && data.months > 0) {
+    if (data.isActive && !data.lifetime && data.months && data.months > 0) {
       const d = new Date();
       d.setMonth(d.getMonth() + data.months);
       expiresAt = d.toISOString();
@@ -122,11 +144,61 @@ export const adminSetUserActiveFn = createServerFn({ method: "POST" })
           user_id: data.userId,
           is_active: data.isActive,
           expires_at: expiresAt,
+          is_lifetime: Boolean(data.lifetime && data.isActive),
+          ...(data.isActive ? { is_banned: false } : {}),
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" },
       );
     if (error) throw new Error("Could not update account");
+    return { ok: true as const };
+  });
+
+const banSchema = z.object({ userId: z.string().uuid(), banned: z.boolean() });
+
+export const adminSetUserBannedFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => banSchema.parse(data))
+  .handler(async ({ context, data }) => {
+    const admin = await assertAdmin(context.userId);
+    if (data.userId === context.userId) throw new Error("You cannot ban your own account");
+    const { error } = await admin.from("user_status").upsert(
+      {
+        user_id: data.userId,
+        is_banned: data.banned,
+        ...(data.banned ? { is_active: false } : {}),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw new Error("Could not update account");
+    return { ok: true as const };
+  });
+
+const paymentSchema = z.object({
+  userId: z.string().uuid(),
+  isPaid: z.boolean(),
+  amount: z.number().min(0).max(1000000).optional(),
+  note: z.string().max(200).optional(),
+});
+
+export const adminSetUserPaymentFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => paymentSchema.parse(data))
+  .handler(async ({ context, data }) => {
+    const admin = await assertAdmin(context.userId);
+    const { error } = await admin.from("user_status").upsert(
+      {
+        user_id: data.userId,
+        is_paid: data.isPaid,
+        paid_amount: data.isPaid ? (data.amount ?? null) : null,
+        paid_note: data.isPaid ? (data.note ?? null) : null,
+        paid_at: data.isPaid ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw new Error("Could not update payment");
     return { ok: true as const };
   });
 
