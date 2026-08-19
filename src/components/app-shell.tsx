@@ -85,22 +85,21 @@ export function PageHeader({
 }
 
 function PendingApproval({ expired }: { expired?: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
       <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
       <h1 className="text-2xl leading-tight">
-        {expired ? "Subscription expired" : "Account awaiting approval"}
+        {expired ? t("pending.expiredTitle") : t("pending.title")}
       </h1>
       <p className="text-sm text-muted-foreground">
-        {expired
-          ? "ماوەی بەشداریکردنەکەت تەواو بووە. تکایە پەیوەندی بە ئەدمینەوە بکە بۆ نوێکردنەوە."
-          : "هەژمارەکەت دروست بوو، بەڵام پێویستە ئەدمین چالاکی بکات. دوای چالاککردن دەتوانیت بچیتە ژوورەوە."}
+        {expired ? t("pending.expiredBody") : t("pending.body")}
       </p>
       <button
         onClick={() => supabase.auth.signOut()}
         className="mt-2 rounded-full border border-border px-5 py-2.5 text-sm"
       >
-        Sign out
+        {t("auth.signOut")}
       </button>
     </div>
   );
