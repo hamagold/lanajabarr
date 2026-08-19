@@ -39,7 +39,12 @@ export function AppShell({
   if (loading || !user) return null;
   if (statusQuery.isLoading) return null;
   if (statusQuery.data && !statusQuery.data.isActive)
-    return <PendingApproval expired={Boolean(statusQuery.data.expired)} />;
+    return (
+      <PendingApproval
+        expired={Boolean(statusQuery.data.expired)}
+        banned={Boolean(statusQuery.data.banned)}
+      />
+    );
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
@@ -84,16 +89,24 @@ export function PageHeader({
   );
 }
 
-function PendingApproval({ expired }: { expired?: boolean }) {
+function PendingApproval({ expired, banned }: { expired?: boolean; banned?: boolean }) {
   const { t } = useI18n();
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-8 text-center">
       <Clock className="h-9 w-9 text-primary" strokeWidth={1.5} />
       <h1 className="text-2xl leading-tight">
-        {expired ? t("pending.expiredTitle") : t("pending.title")}
+        {banned
+          ? t("pending.bannedTitle")
+          : expired
+            ? t("pending.expiredTitle")
+            : t("pending.title")}
       </h1>
       <p className="text-sm text-muted-foreground">
-        {expired ? t("pending.expiredBody") : t("pending.body")}
+        {banned
+          ? t("pending.bannedBody")
+          : expired
+            ? t("pending.expiredBody")
+            : t("pending.body")}
       </p>
       <button
         onClick={() => supabase.auth.signOut()}

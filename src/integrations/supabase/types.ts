@@ -136,6 +136,12 @@ export type Database = {
           created_at: string
           expires_at: string | null
           is_active: boolean
+          is_banned: boolean
+          is_lifetime: boolean
+          is_paid: boolean
+          paid_amount: number | null
+          paid_at: string | null
+          paid_note: string | null
           updated_at: string
           user_id: string
         }
@@ -143,6 +149,12 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           is_active?: boolean
+          is_banned?: boolean
+          is_lifetime?: boolean
+          is_paid?: boolean
+          paid_amount?: number | null
+          paid_at?: string | null
+          paid_note?: string | null
           updated_at?: string
           user_id: string
         }
@@ -150,6 +162,12 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           is_active?: boolean
+          is_banned?: boolean
+          is_lifetime?: boolean
+          is_paid?: boolean
+          paid_amount?: number | null
+          paid_at?: string | null
+          paid_note?: string | null
           updated_at?: string
           user_id?: string
         }
