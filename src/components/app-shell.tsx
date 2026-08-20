@@ -47,10 +47,31 @@ export function AppShell({
     );
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background pt-[env(safe-area-inset-top)] md:max-w-2xl">
-      {header}
-      <main className="flex-1 px-5 pb-28">{children}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md items-center justify-around border-t border-border bg-card/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:max-w-2xl">
+    <div className="min-h-screen bg-background lg:flex">
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col gap-1 border-e border-border bg-card/60 p-4 lg:flex">
+        <p className="px-3 pb-4 pt-2 text-lg font-semibold tracking-tight">Shootflow</p>
+        {TABS.map(({ to, label, icon: Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/60"
+            activeProps={{ className: "bg-primary/10 text-primary font-medium" }}
+          >
+            <Icon className="h-5 w-5" strokeWidth={1.6} />
+            {t(label)}
+          </Link>
+        ))}
+      </aside>
+
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col pt-[env(safe-area-inset-top)] md:max-w-2xl lg:mx-0 lg:max-w-none lg:flex-1 lg:px-8">
+        <div className="w-full lg:mx-auto lg:max-w-4xl">
+          {header}
+          <main className="flex-1 px-5 pb-28 lg:px-0 lg:pb-16">{children}</main>
+        </div>
+      </div>
+
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md items-center justify-around border-t border-border bg-card/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:max-w-2xl lg:hidden">
         {TABS.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
@@ -77,9 +98,9 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-8 pb-5">
+    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-8 pb-5 lg:px-0 lg:pt-10">
       <div className="min-w-0">
-        <h1 className="truncate text-[27px] leading-tight">{title}</h1>
+        <h1 className="truncate text-[27px] leading-tight lg:text-3xl">{title}</h1>
         {subtitle ? (
           <p className="mt-1 truncate text-sm text-muted-foreground">{subtitle}</p>
         ) : null}

@@ -44,7 +44,7 @@ function Dashboard() {
         />
       }
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label={t("dash.upcoming")} value={String(upcoming)} hint={t("dash.bookings")} />
         <Stat
           label={t("dash.collected")}
@@ -53,7 +53,7 @@ function Dashboard() {
         />
       </div>
 
-      <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1">
+      <div className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
         <Chip active={filter === "all"} onClick={() => setFilter("all")}>
           {t("dash.all")}
         </Chip>
@@ -64,9 +64,9 @@ function Dashboard() {
         ))}
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 xl:grid-cols-3">
         {visible.length === 0 ? (
-          <p className="surface p-6 text-center text-sm text-muted-foreground">
+          <p className="surface p-6 text-center text-sm text-muted-foreground lg:col-span-full">
             {t("dash.empty")}
           </p>
         ) : (
@@ -78,7 +78,7 @@ function Dashboard() {
         to="/bookings/new"
         search={{ date: undefined }}
         aria-label={t("dash.newBooking")}
-        className="fixed bottom-24 left-1/2 z-40 ml-[7rem] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition-transform active:scale-95"
+        className="fixed bottom-24 left-1/2 z-40 ml-[7rem] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-soft transition-transform active:scale-95 lg:bottom-10 lg:left-auto lg:right-10 lg:ml-0"
       >
         <Plus className="h-6 w-6" strokeWidth={1.8} />
       </Link>

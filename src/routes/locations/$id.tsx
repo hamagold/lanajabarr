@@ -102,7 +102,7 @@ function LocationDetail() {
   }
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16">
+    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 md:max-w-2xl lg:max-w-3xl">
       <header className="flex items-center gap-2 pt-8 pb-4">
         <Link to="/locations" aria-label="Back" className="-ml-2 p-2 text-muted-foreground">
           <ChevronLeft className="h-5 w-5" />

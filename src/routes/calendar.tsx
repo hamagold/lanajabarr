@@ -32,7 +32,8 @@ function CalendarPage() {
 
   return (
     <AppShell header={<PageHeader title={t("cal.title")} />}>
-      <div className="surface p-4">
+      <div className="lg:grid lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-6">
+      <div className="surface p-4 lg:h-fit">
         <MonthCalendar
           value={selected}
           onChange={setSelected}
@@ -40,7 +41,7 @@ function CalendarPage() {
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 lg:mt-0">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-sm font-medium">{formatDate(selected, locale)}</p>
@@ -78,6 +79,7 @@ function CalendarPage() {
               .map((b) => <BookingCard key={b.id} booking={b} />)
           )}
         </div>
+      </div>
       </div>
     </AppShell>
   );
