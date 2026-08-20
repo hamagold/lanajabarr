@@ -41,7 +41,7 @@ export function MonthCalendar({
   const booked = new Set(bookedDates);
 
   return (
-    <div>
+    <div className="mx-auto w-full lg:mx-0 lg:max-w-md">
       <div className="flex items-center justify-between">
         <button
           type="button"
