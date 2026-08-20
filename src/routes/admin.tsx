@@ -226,7 +226,7 @@ function AdminConsole() {
   });
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-2xl px-5 pb-16 pt-[max(2rem,env(safe-area-inset-top))]">
+    <div className="mx-auto min-h-screen w-full max-w-2xl px-5 pb-16 lg:max-w-5xl pt-[max(2rem,env(safe-area-inset-top))]">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-[27px] leading-tight">Admin panel</h1>

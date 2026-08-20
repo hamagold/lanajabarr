@@ -68,7 +68,7 @@ function ClientSharePage() {
     .filter((l): l is NonNullable<typeof l> => !!l);
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16">
+    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 md:max-w-2xl lg:max-w-3xl">
       <header className="pt-10 pb-6 text-center">
         <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">Shootflow</p>
         <h1 className="mt-2 text-[30px] leading-tight">

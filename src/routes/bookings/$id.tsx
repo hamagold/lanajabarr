@@ -69,7 +69,7 @@ function BookingDetails() {
   const doneCount = booking.checklist.filter((c) => c.done).length;
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16">
+    <div className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 md:max-w-2xl lg:max-w-3xl">
       <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 pt-8 pb-5">
         <Link to="/dashboard" aria-label="Back" className="-ml-2 p-2 text-muted-foreground">
           <ChevronLeft className="h-5 w-5" />

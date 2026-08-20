@@ -145,7 +145,7 @@ function LocationsPage() {
       )}
 
       {picking ? (
-        <div className="fixed inset-x-0 bottom-20 z-40 mx-auto w-full max-w-md px-5">
+        <div className="fixed inset-x-0 bottom-20 z-40 mx-auto w-full max-w-md px-5 md:max-w-2xl lg:bottom-8 lg:max-w-3xl">
           <button
             type="button"
             disabled={picked.length === 0}
