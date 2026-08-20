@@ -80,6 +80,7 @@ function CalendarPage() {
           )}
         </div>
       </div>
+      </div>
     </AppShell>
   );
 }
