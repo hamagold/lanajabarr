@@ -473,8 +473,8 @@ function PaymentRow({
           onClick={() =>
             onSave({
               isPaid: true,
-              amount: amount ? Number(amount) : undefined,
-              note: note || undefined,
+              ...(amount ? { amount: Number(amount) } : {}),
+              ...(note ? { note } : {}),
             })
           }
           disabled={busy}
