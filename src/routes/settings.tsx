@@ -20,6 +20,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getAccountStatusFn } from "@/lib/admin.functions";
+
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -60,6 +64,14 @@ function SettingsPage() {
   const [mode, setMode] = useState<"merge" | "replace">("merge");
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
   const [open, setOpen] = useState<"lang" | "currency" | "theme" | null>(null);
+  const getStatus = useServerFn(getAccountStatusFn);
+  const statusQuery = useQuery({
+    queryKey: ["account-status", user?.id],
+    queryFn: () => getStatus({}),
+    enabled: Boolean(user),
+  });
+  const isAdmin = Boolean(statusQuery.data?.isAdmin);
+
 
   const activeLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
   const activeCurrency = CURRENCIES.find((c) => c.code === settings.currency) ?? CURRENCIES[0];
@@ -184,7 +196,9 @@ function SettingsPage() {
         />
       </div>
 
+      {isAdmin ? (
       <section className="surface mt-4 p-4">
+
         <div className="flex items-center gap-3">
           <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
           <div className="min-w-0 flex-1">
@@ -257,6 +271,8 @@ function SettingsPage() {
           {t("set.resetDefault")}
         </button>
       </section>
+      ) : null}
+
 
       <section className="surface mt-4 p-4">
         <p className="text-sm font-medium">{t("set.backup")}</p>
