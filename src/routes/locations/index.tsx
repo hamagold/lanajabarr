@@ -105,7 +105,7 @@ function LocationsPage() {
         </section>
       ) : null}
 
-      <div className="-mx-5 mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
+      <div className="-mx-5 mb-4 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
         {tags.map((t) => (
           <button
             key={t}
