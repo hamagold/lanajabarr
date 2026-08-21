@@ -196,6 +196,79 @@ function SettingsPage() {
         />
       </div>
 
+      <section className="surface mt-4 p-4">
+        <div className="flex items-center gap-3">
+          <User className="h-5 w-5 text-muted-foreground" strokeWidth={1.6} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{t("set.account")}</p>
+            <p className="text-xs text-muted-foreground">
+              {user?.email ?? t("set.accountHint")}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div>
+            <label htmlFor="acc-name" className="text-xs text-muted-foreground">
+              {t("set.displayName")}
+            </label>
+            <Input
+              id="acc-name"
+              value={accName}
+              onChange={(e) => setAccName(e.target.value)}
+              className="mt-1"
+              autoComplete="name"
+            />
+          </div>
+          <div>
+            <label htmlFor="acc-pass" className="text-xs text-muted-foreground">
+              {t("set.newPassword")}
+            </label>
+            <Input
+              id="acc-pass"
+              type="password"
+              value={pass1}
+              onChange={(e) => setPass1(e.target.value)}
+              className="mt-1"
+              autoComplete="new-password"
+            />
+          </div>
+          <div>
+            <label htmlFor="acc-pass2" className="text-xs text-muted-foreground">
+              {t("set.confirmPassword")}
+            </label>
+            <Input
+              id="acc-pass2"
+              type="password"
+              value={pass2}
+              onChange={(e) => setPass2(e.target.value)}
+              className="mt-1"
+              autoComplete="new-password"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={saveAccount}
+          disabled={savingAccount}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
+        >
+          <Check className="h-4 w-4" strokeWidth={1.6} />
+          {t("set.saveAccount")}
+        </button>
+
+        {accStatus ? (
+          <p
+            className={`mt-3 text-center text-xs ${accStatus.ok ? "text-primary" : "text-destructive"}`}
+          >
+            {accStatus.text}
+          </p>
+        ) : null}
+      </section>
+
+
+
       {isAdmin ? (
       <section className="surface mt-4 p-4">
 
