@@ -105,7 +105,7 @@ function LocationsPage() {
         </section>
       ) : null}
 
-      <div className="-mx-5 mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
+      <div className="-mx-5 mb-4 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
         {tags.map((t) => (
           <button
             key={t}
@@ -131,7 +131,7 @@ function LocationsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {visible.map((l) => (
             <LocationCard
               key={l.id}
