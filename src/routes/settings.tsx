@@ -72,6 +72,39 @@ function SettingsPage() {
   });
   const isAdmin = Boolean(statusQuery.data?.isAdmin);
 
+  const [accName, setAccName] = useState<string>(
+    (user?.user_metadata?.["full_name"] as string | undefined) ?? "",
+  );
+  const [pass1, setPass1] = useState("");
+  const [pass2, setPass2] = useState("");
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [accStatus, setAccStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [accSynced, setAccSynced] = useState(false);
+  if (!accSynced && user) {
+    setAccSynced(true);
+    setAccName((user.user_metadata?.["full_name"] as string | undefined) ?? "");
+  }
+
+  async function saveAccount() {
+    setAccStatus(null);
+    if (pass1 || pass2) {
+      if (pass1 !== pass2) return setAccStatus({ ok: false, text: t("set.passwordMismatch") });
+      if (pass1.length < 6) return setAccStatus({ ok: false, text: t("set.passwordShort") });
+    }
+    setSavingAccount(true);
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: accName.trim() },
+      ...(pass1 ? { password: pass1 } : {}),
+    });
+    setSavingAccount(false);
+    if (error) return setAccStatus({ ok: false, text: error.message || t("set.accountFailed") });
+    setPass1("");
+    setPass2("");
+    setAccStatus({ ok: true, text: t("set.accountSaved") });
+  }
+
+
+
 
   const activeLang = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
   const activeCurrency = CURRENCIES.find((c) => c.code === settings.currency) ?? CURRENCIES[0];
