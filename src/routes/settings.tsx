@@ -380,6 +380,7 @@ function SettingsPage() {
       ) : null}
 
 
+      {isAdmin ? (
       <section className="surface mt-4 p-4">
         <p className="text-sm font-medium">{t("set.backup")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -431,6 +432,8 @@ function SettingsPage() {
           </p>
         ) : null}
       </section>
+      ) : null}
+
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
         {t("set.storedLocally")}
