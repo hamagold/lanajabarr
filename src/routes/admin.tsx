@@ -41,16 +41,81 @@ const PLANS = [
   { label: "1 year", months: 12 },
 ] as const;
 
-type Filter = "all" | "active" | "pending" | "expired" | "banned" | "unpaid";
+type Filter =
+  | "all"
+  | "pending"
+  | "active"
+  | "lifetime"
+  | "monthly"
+  | "yearly"
+  | "expired"
+  | "banned"
+  | "unpaid";
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "pending", label: "Requested" },
   { key: "active", label: "Active" },
-  { key: "pending", label: "Pending" },
+  { key: "lifetime", label: "Lifetime" },
+  { key: "monthly", label: "Monthly plan" },
+  { key: "yearly", label: "Yearly plan" },
   { key: "expired", label: "Expired" },
   { key: "banned", label: "Banned" },
   { key: "unpaid", label: "Unpaid" },
 ];
+
+type AdminUser = {
+  id: string;
+  email: string;
+  createdAt: string;
+  lastSignInAt: string | null;
+  isActive: boolean;
+  isAdmin: boolean;
+  banned: boolean;
+  lifetime: boolean;
+  planMonths: number | null;
+  isPaid: boolean;
+  paidAmount: number | null;
+  paidNote: string | null;
+  paidAt: string | null;
+  expiresAt: string | null;
+  expired: boolean;
+};
+
+function planLabel(u: AdminUser): string | null {
+  if (u.lifetime) return "Lifetime";
+  if (u.planMonths === 12) return "Yearly";
+  if (u.planMonths === 6) return "6 months";
+  if (u.planMonths === 3) return "3 months";
+  if (u.planMonths === 1) return "Monthly";
+  if (u.isActive && u.planMonths === 0) return "No end date";
+  return null;
+}
+
+function matchesFilter(u: AdminUser, filter: Filter): boolean {
+  switch (filter) {
+    case "all":
+      return true;
+    case "pending":
+      return !u.isActive && !u.banned && !u.expired && !u.isAdmin;
+    case "active":
+      return u.isActive;
+    case "lifetime":
+      return u.lifetime && u.isActive;
+    case "monthly":
+      return (
+        !u.lifetime && u.isActive && u.planMonths != null && u.planMonths > 0 && u.planMonths < 12
+      );
+    case "yearly":
+      return !u.lifetime && u.isActive && u.planMonths === 12;
+    case "expired":
+      return u.expired;
+    case "banned":
+      return u.banned;
+    case "unpaid":
+      return !u.isPaid && !u.isAdmin;
+  }
+}
 
 function Stat({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
   return (
@@ -202,27 +267,37 @@ function AdminConsole() {
     );
   }
 
-  const users = usersQuery.data ?? [];
+  const users = (usersQuery.data ?? []) as AdminUser[];
   const stats = {
     total: users.length,
     active: users.filter((u) => u.isActive).length,
-    pending: users.filter((u) => !u.isActive && !u.banned && !u.expired).length,
+    pending: users.filter((u) => matchesFilter(u, "pending")).length,
     expired: users.filter((u) => u.expired).length,
     banned: users.filter((u) => u.banned).length,
     paid: users.filter((u) => u.isPaid).length,
     unpaid: users.filter((u) => !u.isPaid && !u.isAdmin).length,
+    lifetime: users.filter((u) => matchesFilter(u, "lifetime")).length,
+    monthly: users.filter((u) => matchesFilter(u, "monthly")).length,
+    yearly: users.filter((u) => matchesFilter(u, "yearly")).length,
     revenue: users.reduce((sum, u) => sum + (u.isPaid ? Number(u.paidAmount ?? 0) : 0), 0),
+  };
+
+  const filterCounts: Record<Filter, number> = {
+    all: users.length,
+    pending: stats.pending,
+    active: stats.active,
+    lifetime: stats.lifetime,
+    monthly: stats.monthly,
+    yearly: stats.yearly,
+    expired: stats.expired,
+    banned: stats.banned,
+    unpaid: stats.unpaid,
   };
 
   const q = search.trim().toLowerCase();
   const visible = users.filter((u) => {
     if (q && !u.email.toLowerCase().includes(q)) return false;
-    if (filter === "active") return u.isActive;
-    if (filter === "pending") return !u.isActive && !u.banned && !u.expired;
-    if (filter === "expired") return u.expired;
-    if (filter === "banned") return u.banned;
-    if (filter === "unpaid") return !u.isPaid && !u.isAdmin;
-    return true;
+    return matchesFilter(u, filter);
   });
 
   return (
@@ -268,13 +343,22 @@ function AdminConsole() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`rounded-full border px-3.5 py-1.5 text-[11px] transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[11px] transition-colors ${
                 filter === f.key
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-secondary text-muted-foreground"
               }`}
             >
               {f.label}
+              <span
+                className={`rounded-full px-1.5 py-px text-[10px] font-semibold ${
+                  filter === f.key
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-background text-foreground/70"
+                }`}
+              >
+                {filterCounts[f.key]}
+              </span>
             </button>
           ))}
         </div>
@@ -322,6 +406,9 @@ function AdminConsole() {
                 >
                   {u.banned ? "Banned" : u.isActive ? "Active" : u.expired ? "Expired" : "Pending"}
                 </Chip>
+                {planLabel(u) ? (
+                  <Chip tone="bg-secondary text-foreground">{planLabel(u)}</Chip>
+                ) : null}
                 <Chip
                   tone={
                     u.isPaid

@@ -68,7 +68,7 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
       admin
         .from("user_status")
         .select(
-          "user_id, is_active, expires_at, is_banned, is_lifetime, is_paid, paid_amount, paid_note, paid_at",
+          "user_id, is_active, expires_at, is_banned, is_lifetime, plan_months, is_paid, paid_amount, paid_note, paid_at",
         ),
       admin.from("user_roles").select("user_id, role"),
     ]);
@@ -81,6 +81,7 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
           expires_at: string | null;
           is_banned: boolean;
           is_lifetime: boolean;
+          plan_months: number | null;
           is_paid: boolean;
           paid_amount: number | null;
           paid_note: string | null;
@@ -108,6 +109,7 @@ export const adminListUsersFn = createServerFn({ method: "GET" })
         isAdmin,
         banned,
         lifetime,
+        planMonths: s?.plan_months ?? null,
         isPaid: Boolean(s?.is_paid),
         paidAmount: s?.paid_amount ?? null,
         paidNote: s?.paid_note ?? null,
@@ -145,6 +147,11 @@ export const adminSetUserActiveFn = createServerFn({ method: "POST" })
           is_active: data.isActive,
           expires_at: expiresAt,
           is_lifetime: Boolean(data.lifetime && data.isActive),
+          plan_months: data.isActive
+            ? data.lifetime
+              ? null
+              : (data.months ?? 0)
+            : null,
           ...(data.isActive ? { is_banned: false } : {}),
           updated_at: new Date().toISOString(),
         },
