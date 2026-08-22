@@ -41,16 +41,81 @@ const PLANS = [
   { label: "1 year", months: 12 },
 ] as const;
 
-type Filter = "all" | "active" | "pending" | "expired" | "banned" | "unpaid";
+type Filter =
+  | "all"
+  | "pending"
+  | "active"
+  | "lifetime"
+  | "monthly"
+  | "yearly"
+  | "expired"
+  | "banned"
+  | "unpaid";
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "pending", label: "Requested" },
   { key: "active", label: "Active" },
-  { key: "pending", label: "Pending" },
+  { key: "lifetime", label: "Lifetime" },
+  { key: "monthly", label: "Monthly plan" },
+  { key: "yearly", label: "Yearly plan" },
   { key: "expired", label: "Expired" },
   { key: "banned", label: "Banned" },
   { key: "unpaid", label: "Unpaid" },
 ];
+
+type AdminUser = {
+  id: string;
+  email: string;
+  createdAt: string;
+  lastSignInAt: string | null;
+  isActive: boolean;
+  isAdmin: boolean;
+  banned: boolean;
+  lifetime: boolean;
+  planMonths: number | null;
+  isPaid: boolean;
+  paidAmount: number | null;
+  paidNote: string | null;
+  paidAt: string | null;
+  expiresAt: string | null;
+  expired: boolean;
+};
+
+function planLabel(u: AdminUser): string | null {
+  if (u.lifetime) return "Lifetime";
+  if (u.planMonths === 12) return "Yearly";
+  if (u.planMonths === 6) return "6 months";
+  if (u.planMonths === 3) return "3 months";
+  if (u.planMonths === 1) return "Monthly";
+  if (u.isActive && u.planMonths === 0) return "No end date";
+  return null;
+}
+
+function matchesFilter(u: AdminUser, filter: Filter): boolean {
+  switch (filter) {
+    case "all":
+      return true;
+    case "pending":
+      return !u.isActive && !u.banned && !u.expired && !u.isAdmin;
+    case "active":
+      return u.isActive;
+    case "lifetime":
+      return u.lifetime && u.isActive;
+    case "monthly":
+      return (
+        !u.lifetime && u.isActive && u.planMonths != null && u.planMonths > 0 && u.planMonths < 12
+      );
+    case "yearly":
+      return !u.lifetime && u.isActive && u.planMonths === 12;
+    case "expired":
+      return u.expired;
+    case "banned":
+      return u.banned;
+    case "unpaid":
+      return !u.isPaid && !u.isAdmin;
+  }
+}
 
 function Stat({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
   return (
