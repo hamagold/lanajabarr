@@ -267,27 +267,37 @@ function AdminConsole() {
     );
   }
 
-  const users = usersQuery.data ?? [];
+  const users = (usersQuery.data ?? []) as AdminUser[];
   const stats = {
     total: users.length,
     active: users.filter((u) => u.isActive).length,
-    pending: users.filter((u) => !u.isActive && !u.banned && !u.expired).length,
+    pending: users.filter((u) => matchesFilter(u, "pending")).length,
     expired: users.filter((u) => u.expired).length,
     banned: users.filter((u) => u.banned).length,
     paid: users.filter((u) => u.isPaid).length,
     unpaid: users.filter((u) => !u.isPaid && !u.isAdmin).length,
+    lifetime: users.filter((u) => matchesFilter(u, "lifetime")).length,
+    monthly: users.filter((u) => matchesFilter(u, "monthly")).length,
+    yearly: users.filter((u) => matchesFilter(u, "yearly")).length,
     revenue: users.reduce((sum, u) => sum + (u.isPaid ? Number(u.paidAmount ?? 0) : 0), 0),
+  };
+
+  const filterCounts: Record<Filter, number> = {
+    all: users.length,
+    pending: stats.pending,
+    active: stats.active,
+    lifetime: stats.lifetime,
+    monthly: stats.monthly,
+    yearly: stats.yearly,
+    expired: stats.expired,
+    banned: stats.banned,
+    unpaid: stats.unpaid,
   };
 
   const q = search.trim().toLowerCase();
   const visible = users.filter((u) => {
     if (q && !u.email.toLowerCase().includes(q)) return false;
-    if (filter === "active") return u.isActive;
-    if (filter === "pending") return !u.isActive && !u.banned && !u.expired;
-    if (filter === "expired") return u.expired;
-    if (filter === "banned") return u.banned;
-    if (filter === "unpaid") return !u.isPaid && !u.isAdmin;
-    return true;
+    return matchesFilter(u, filter);
   });
 
   return (
@@ -333,13 +343,22 @@ function AdminConsole() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`rounded-full border px-3.5 py-1.5 text-[11px] transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[11px] transition-colors ${
                 filter === f.key
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-secondary text-muted-foreground"
               }`}
             >
               {f.label}
+              <span
+                className={`rounded-full px-1.5 py-px text-[10px] font-semibold ${
+                  filter === f.key
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-background text-foreground/70"
+                }`}
+              >
+                {filterCounts[f.key]}
+              </span>
             </button>
           ))}
         </div>
@@ -387,6 +406,9 @@ function AdminConsole() {
                 >
                   {u.banned ? "Banned" : u.isActive ? "Active" : u.expired ? "Expired" : "Pending"}
                 </Chip>
+                {planLabel(u) ? (
+                  <Chip tone="bg-secondary text-foreground">{planLabel(u)}</Chip>
+                ) : null}
                 <Chip
                   tone={
                     u.isPaid
