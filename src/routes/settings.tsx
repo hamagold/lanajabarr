@@ -383,7 +383,7 @@ function SettingsPage() {
       {isAdmin ? (
       <section className="surface mt-4 p-4">
         <p className="text-sm font-medium">{t("set.backup")}</p>
-
+        <p className="mt-1 text-xs text-muted-foreground">
           {t("set.backupHint", { count: bookings.length })}
         </p>
 
