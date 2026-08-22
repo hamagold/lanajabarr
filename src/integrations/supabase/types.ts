@@ -142,6 +142,7 @@ export type Database = {
           paid_amount: number | null
           paid_at: string | null
           paid_note: string | null
+          plan_months: number | null
           updated_at: string
           user_id: string
         }
@@ -155,6 +156,7 @@ export type Database = {
           paid_amount?: number | null
           paid_at?: string | null
           paid_note?: string | null
+          plan_months?: number | null
           updated_at?: string
           user_id: string
         }
@@ -168,6 +170,7 @@ export type Database = {
           paid_amount?: number | null
           paid_at?: string | null
           paid_note?: string | null
+          plan_months?: number | null
           updated_at?: string
           user_id?: string
         }
